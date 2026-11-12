@@ -1,20 +1,37 @@
 
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Navigate,
+} from 'react-router-dom'
 
 import { ChatPage } from './features/chat'
+import { TasksPage } from './features/tasks'
+import { NotificationsPage } from './features/notifications'
 
 export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Chat page */}
         <Route path="/chat" element={<ChatPage />} />
 
-        {/* Redirect home to Chat for now */}
-        <Route path="/" element={<Navigate to="/chat" replace />} />
+        <Route path="/tasks" element={<TasksPage />} />
 
-        {/* Handle invalid routes */}
-        <Route path="*" element={<Navigate to="/chat" replace />} />
+        <Route
+          path="/notifications"
+          element={<NotificationsPage />}
+        />
+
+        <Route
+          path="/"
+          element={<Navigate to="/chat" replace />}
+        />
+
+        <Route
+          path="*"
+          element={<Navigate to="/chat" replace />}
+        />
       </Routes>
     </BrowserRouter>
   )
