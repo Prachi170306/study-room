@@ -18,7 +18,7 @@ import { ChatPage } from "./features/chat";
 import { TasksPage } from "./features/tasks";
 import { NotificationsPage } from "./features/notifications";
 import { FocusRoom } from "./features/focus";
-import { ProgressRoom } from "./features/progress";
+//import { ProgressRoom } from "./features/progress";
 
 function App() {
   return (
@@ -41,7 +41,6 @@ function App() {
         <Route path="/tasks" element={<TasksPage />} />
         <Route path="/notifications" element={<NotificationsPage />} />
         <Route path="/focus" element={<FocusRoom />} />
-        <Route path="/progress" element={<ProgressRoom />} />
 
         {/* Unknown routes */}
         <Route path="*" element={<Navigate to="/login" replace />} />
