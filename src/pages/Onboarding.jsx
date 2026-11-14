@@ -1,13 +1,20 @@
 
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { auth, db } from "../firebase/config";
+import {
+  doc,
+  getDoc,
+  setDoc,
+  serverTimestamp
+} from "firebase/firestore";
 import "./Onboarding.css";
 
 function Onboarding() {
   const navigate = useNavigate();
 
   const [profile, setProfile] = useState({
-    fullName: "",
+    fullName: auth.currentUser?.displayName || "",
     college: "",
     course: "Computer Science and Engineering",
     year: "2nd Year",
@@ -16,6 +23,9 @@ function Onboarding() {
     subjects: ""
   });
 
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
   const handleChange = (e) => {
     setProfile({
       ...profile,
@@ -23,12 +33,43 @@ function Onboarding() {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
 
-    sessionStorage.setItem("studyProfile", JSON.stringify(profile));
+    const user = auth.currentUser;
 
-    navigate("/dashboard");
+    if (!user) {
+      navigate("/login");
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      const profileRef = doc(db, "users", user.uid);
+      const existingProfile = await getDoc(profileRef);
+
+      const profileData = {
+        ...profile,
+        email: user.email,
+        updatedAt: serverTimestamp()
+      };
+
+      if (!existingProfile.exists()) {
+        profileData.createdAt = serverTimestamp();
+      }
+
+      await setDoc(profileRef, profileData, { merge: true });
+
+      navigate("/dashboard");
+
+    } catch (err) {
+      console.error("Profile saving error:", err);
+      setError("Unable to save your profile. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -116,8 +157,16 @@ function Onboarding() {
             required
           />
 
-          <button type="submit" className="onboarding-btn">
-            Save Profile & Continue
+          {error && (
+            <p style={{ color: "red" }}>{error}</p>
+          )}
+
+          <button
+            type="submit"
+            className="onboarding-btn"
+            disabled={loading}
+          >
+            {loading ? "Saving Profile..." : "Save Profile & Continue"}
           </button>
 
         </form>
