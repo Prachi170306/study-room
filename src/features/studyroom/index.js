@@ -1,0 +1,1 @@
+export { default as StudyRoom } from './pages/studyRoom'

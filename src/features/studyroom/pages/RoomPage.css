@@ -1,0 +1,196 @@
+
+.room-page {
+  min-height: 100vh;
+  padding: 50px 7%;
+  background: #f5f6fd;
+  color: #202944;
+}
+
+.room-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 35px;
+}
+
+.room-header h1 {
+  font-size: 36px;
+  margin-bottom: 10px;
+}
+
+.room-header p {
+  color: #7182a7;
+  font-size: 17px;
+}
+
+.room-page button {
+  background: #593bfa;
+  color: white;
+  border: none;
+  padding: 13px 24px;
+  border-radius: 10px;
+  font-size: 15px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.room-page button:hover {
+  background: #4528df;
+}
+
+.room-info-card,
+.members-card {
+  background: white;
+  padding: 30px;
+  border-radius: 20px;
+  margin-bottom: 25px;
+  box-shadow: 0 8px 25px rgba(30, 40, 80, 0.05);
+}
+
+.room-info-card h3,
+.members-card h2 {
+  margin-bottom: 20px;
+}
+
+.room-info-card p {
+  color: #7182a7;
+  margin: 15px 0;
+}
+
+.member-item {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 18px 0;
+  border-bottom: 1px solid #edf0f7;
+}
+
+.member-avatar {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  background: #eeecff;
+  color: #593bfa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 18px;
+}
+
+.member-item h4 {
+  margin-bottom: 5px;
+}
+
+.member-item p {
+  color: #8490aa;
+  font-size: 13px;
+}
+
+.online-status {
+  margin-left: auto;
+  color: #22a66b;
+  font-size: 14px;
+}
+
+.room-message {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  background: #f5f6fd;
+  color: #202944;
+}
+
+@media (max-width: 650px) {
+  .room-page {
+    padding: 30px 5%;
+  }
+
+  .room-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .room-header h1 {
+    font-size: 28px;
+  }
+}
+
+.shared-timer-card {
+  background: #ffffff;
+  padding: 35px;
+  border-radius: 24px;
+  margin-bottom: 30px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(30, 40, 80, 0.05);
+}
+
+.shared-timer-card h2 {
+  color: #202b49;
+  font-size: 24px;
+  margin-bottom: 15px;
+}
+
+.timer-mode {
+  color: #6040ff;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.shared-timer-display {
+  font-size: 76px;
+  font-weight: 600;
+  color: #6040ff;
+  margin: 20px 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.shared-timer-status {
+  color: #7585a8;
+  font-size: 16px;
+  margin-bottom: 20px;
+}
+
+.shared-timer-controls {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+}
+
+.shared-timer-controls button {
+  background: #6040ff;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 14px 35px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.shared-timer-controls button:hover {
+  background: #4d2ee8;
+}
+
+.shared-timer-controls button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.host-notice {
+  color: #7585a8;
+  margin-top: 20px;
+}
+
+@media (max-width: 600px) {
+  .shared-timer-display {
+    font-size: 55px;
+  }
+
+  .shared-timer-card {
+    padding: 25px 15px;
+  }
+}
