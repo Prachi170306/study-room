@@ -9,7 +9,8 @@ import {
 import { ChatPage } from './features/chat'
 import { TasksPage } from './features/tasks'
 import { NotificationsPage } from './features/notifications'
-
+import DoubtCorner from './features/doubts/pages/DoubtCorner'
+import ResourceLibrary from './features/resources/pages/ResourceLibrary'
 export default function App() {
   return (
     <BrowserRouter>
@@ -22,7 +23,8 @@ export default function App() {
           path="/notifications"
           element={<NotificationsPage />}
         />
-
+        <Route path="/resources" element={<ResourceLibrary />} />
+         <Route path="/doubts" element={<DoubtCorner />} />
         <Route
           path="/"
           element={<Navigate to="/chat" replace />}
