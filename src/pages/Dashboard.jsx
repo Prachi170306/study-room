@@ -192,10 +192,18 @@ function Dashboard() {
 
         <p className="sidebar-label">MENU</p>
 
-        <a href="#overview" className="active">▦ Dashboard</a>
-        <a href="#subjects">◈ My Subjects</a>
-        <a href="#planner">☑ Study Planner</a>
-        <a href="#tracker">◷ Study Tracker</a>
+       <a href="#overview" className="active">▪ Dashboard</a>
+<a href="#subjects">◈ My Subjects</a>
+<a href="#planner">☑ Study Planner</a>
+<a href="#tracker">◷ Study Tracker</a>
+
+<button
+  type="button"
+  className="sidebar-focus-btn"
+  onClick={() => navigate("/focus")}
+>
+  🎯 Focus Room
+</button>
 
         <div className="sidebar-bottom">
           <a href="/profile">⚙ Profile</a>

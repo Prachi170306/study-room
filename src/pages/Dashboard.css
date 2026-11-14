@@ -330,3 +330,24 @@
     align-items: flex-start;
   }
 }
+
+.sidebar-focus-btn {
+  display: block;
+  width: 100%;
+  padding: 13px 16px;
+  margin-top: 10px;
+  border: none;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #6c63ff, #8b5cf6);
+  color: white;
+  font-size: 15px;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.sidebar-focus-btn:hover {
+  transform: translateX(4px);
+  box-shadow: 0 5px 15px rgba(108, 99, 255, 0.25);
+}
