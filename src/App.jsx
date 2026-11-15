@@ -10,7 +10,7 @@ import { ChatPage } from './features/chat'
 import { TasksPage } from './features/tasks'
 import { NotificationsPage } from './features/notifications'
 import {FocusRoom} from './features/focus'
-import {ProgressRoom} from './features/progress'
+//import {ProgressRoom} from './features/progress'
 
 export default function App() {
   return (
@@ -40,10 +40,7 @@ export default function App() {
           element = {<FocusRoom/>}
         />
 
-        <Route
-          path="/progress"
-          element= {<ProgressRoom/>}
-        />
+        {/* <Route path="/progress" element= {<ProgressRoom/>} /> */}
 
       </Routes>
     </BrowserRouter>
