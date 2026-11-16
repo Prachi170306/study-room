@@ -1,108 +1,161 @@
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { onAuthStateChanged } from 'firebase/auth'
+import { auth } from '../../../firebase'
+
 import {
-  getDemoConversations,
-  getDemoStudents,
+  subscribeToStudents,
+  subscribeToConversations,
+  subscribeToMessages,
+  createOrGetDirectChat,
+  createGroupChat,
+  sendChatMessage,
 } from '../services/chatService'
-import { formatMessageTime } from '../utils/chatHelpers'
 
 export default function useConversations() {
-  const [conversations, setConversations] = useState(
-    () => getDemoConversations()
-  )
-
-  const [selectedId, setSelectedId] = useState('c1')
+  const [currentUser, setCurrentUser] = useState(null)
+  const [conversations, setConversations] = useState([])
+  const [selectedId, setSelectedId] = useState(null)
+  const [students, setStudents] = useState([])
   const [search, setSearch] = useState('')
+  const [error, setError] = useState('')
 
-  const students = getDemoStudents()
+  // Listen for authentication and Firestore data
+  useEffect(() => {
+    let unsubscribeConversations = null
+    let unsubscribeStudents = null
+
+    const unsubscribeAuth = onAuthStateChanged(auth, user => {
+      unsubscribeConversations?.()
+      unsubscribeStudents?.()
+
+      unsubscribeConversations = null
+      unsubscribeStudents = null
+
+      setCurrentUser(user)
+      setConversations([])
+      setStudents([])
+      setSelectedId(null)
+      setError('')
+
+      if (!user) return
+
+      unsubscribeStudents = subscribeToStudents(
+        user.uid,
+        setStudents,
+        err => {
+          console.error('Error loading students:', err)
+          setError(err.message)
+        }
+      )
+
+      unsubscribeConversations = subscribeToConversations(
+        user.uid,
+        list => {
+          setConversations(list)
+
+          setSelectedId(previous =>
+            previous && list.some(chat => chat.id === previous)
+              ? previous
+              : list[0]?.id || null
+          )
+        },
+        err => {
+          console.error('Error loading conversations:', err)
+          setError(err.message)
+        }
+      )
+    })
+
+    return () => {
+      unsubscribeAuth()
+      unsubscribeConversations?.()
+      unsubscribeStudents?.()
+    }
+  }, [])
+
+  // Listen to messages in the selected conversation
+  useEffect(() => {
+    if (!selectedId || !currentUser) return
+
+    const activeChatId = selectedId
+
+    const unsubscribe = subscribeToMessages(
+      activeChatId,
+      currentUser.uid,
+      messages => {
+        setConversations(previous =>
+          previous.map(chat =>
+            chat.id === activeChatId
+              ? { ...chat, messages }
+              : chat
+          )
+        )
+      },
+      err => {
+        console.error('Error loading messages:', err)
+        setError(err.message)
+      }
+    )
+
+    return () => unsubscribe()
+  }, [selectedId, currentUser])
 
   const selectedConversation = conversations.find(
-    conversation => conversation.id === selectedId
-  )
+    chat => chat.id === selectedId
+  ) || null
 
-  const filteredConversations = conversations.filter(conversation =>
-    conversation.name.toLowerCase().includes(search.toLowerCase())
+  const filteredConversations = conversations.filter(chat =>
+    chat.name.toLowerCase().includes(search.toLowerCase())
   )
 
   function selectConversation(id) {
     setSelectedId(id)
+  }
 
-    setConversations(previous =>
-      previous.map(conversation =>
-        conversation.id === id
-          ? { ...conversation, unread: 0 }
-          : conversation
+  async function sendMessage(text) {
+    if (!text.trim() || !selectedId || !currentUser) return
+
+    try {
+      setError('')
+      await sendChatMessage(selectedId, currentUser, text)
+    } catch (err) {
+      console.error('Error sending message:', err)
+      setError(err.message)
+    }
+  }
+
+  async function createPersonalChat(student) {
+    if (!currentUser || !student?.id) return
+
+    try {
+      setError('')
+      const chatId = await createOrGetDirectChat(
+        currentUser,
+        student
       )
-    )
+      setSelectedId(chatId)
+    } catch (err) {
+      console.error('Error creating personal chat:', err)
+      setError(err.message)
+    }
   }
 
-  function sendMessage(text) {
-    if (!text.trim() || !selectedConversation) return
+  async function createGroup(name, members) {
+    if (!currentUser || !name.trim() || members.length < 2) return
 
-    const newMessage = {
-      id: crypto.randomUUID(),
-      sender: 'You',
-      text: text.trim(),
-      time: formatMessageTime(),
-      mine: true,
-    }
-
-    setConversations(previous =>
-      previous.map(conversation =>
-        conversation.id === selectedId
-          ? {
-              ...conversation,
-              messages: [...conversation.messages, newMessage],
-            }
-          : conversation
+    try {
+      setError('')
+      const chatId = await createGroupChat(
+        currentUser,
+        name,
+        members
       )
-    )
-  }
-
-  function createPersonalChat(name) {
-    const cleanName = name.trim()
-    if (!cleanName) return
-
-    const existing = conversations.find(
-      conversation =>
-        conversation.type === 'personal' &&
-        conversation.name.toLowerCase() === cleanName.toLowerCase()
-    )
-
-    if (existing) {
-      selectConversation(existing.id)
-      return
+      setSelectedId(chatId)
+    } catch (err) {
+      console.error('Error creating group:', err)
+      setError(err.message)
     }
-
-    const newConversation = {
-      id: crypto.randomUUID(),
-      name: cleanName,
-      type: 'personal',
-      members: [cleanName],
-      unread: 0,
-      messages: [],
-    }
-
-    setConversations(previous => [newConversation, ...previous])
-    setSelectedId(newConversation.id)
-  }
-
-  function createGroup(name, members) {
-    const cleanName = name.trim()
-
-    if (!cleanName || members.length < 2) return
-
-    const newGroup = {
-      id: crypto.randomUUID(),
-      name: cleanName,
-      type: 'group',
-      members,
-      unread: 0,
-      messages: [],
-    }
-
-    setConversations(previous => [newGroup, ...previous])
-    setSelectedId(newGroup.id)
   }
 
   return {
@@ -117,5 +170,7 @@ export default function useConversations() {
     sendMessage,
     createPersonalChat,
     createGroup,
+    currentUser,
+    error,
   }
 }

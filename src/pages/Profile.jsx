@@ -1,18 +1,13 @@
-
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  onAuthStateChanged,
-  signOut,
-  deleteUser
-} from "firebase/auth";
+import { onAuthStateChanged, signOut, deleteUser } from "firebase/auth";
 
 import {
   doc,
   getDoc,
   setDoc,
   deleteDoc,
-  serverTimestamp
+  serverTimestamp,
 } from "firebase/firestore";
 import { auth, db } from "../firebase/config";
 import "./Profile.css";
@@ -32,7 +27,7 @@ function Profile() {
     year: "",
     bio: "",
     subjects: "",
-    studyGoal: "3 hours"
+    studyGoal: "3 hours",
   });
 
   useEffect(() => {
@@ -51,6 +46,19 @@ function Profile() {
         if (profileSnap.exists()) {
           const data = profileSnap.data();
 
+          // Automatically create/update the public Chat profile
+          const chatProfileRef = doc(db, "chatProfiles", currentUser.uid);
+
+          await setDoc(
+            chatProfileRef,
+            {
+              displayName:
+                data.fullName || currentUser.displayName || "Student",
+              updatedAt: serverTimestamp(),
+            },
+            { merge: true },
+          );
+
           setProfile({
             fullName: data.fullName || currentUser.displayName || "",
             college: data.college || "",
@@ -60,12 +68,23 @@ function Profile() {
             subjects: Array.isArray(data.subjects)
               ? data.subjects.join(", ")
               : data.subjects || "",
-            studyGoal: data.studyGoal || "3 hours"
+            studyGoal: data.studyGoal || "3 hours",
           });
         } else {
+          const chatProfileRef = doc(db, "chatProfiles", currentUser.uid);
+
+          await setDoc(
+            chatProfileRef,
+            {
+              displayName: currentUser.displayName || "Student",
+              updatedAt: serverTimestamp(),
+            },
+            { merge: true },
+          );
+
           setProfile((prev) => ({
             ...prev,
-            fullName: currentUser.displayName || ""
+            fullName: currentUser.displayName || "",
           }));
         }
       } catch (error) {
@@ -84,7 +103,7 @@ function Profile() {
 
     setProfile((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
@@ -105,14 +124,25 @@ function Profile() {
           .map((subject) => subject.trim())
           .filter(Boolean),
         email: user.email || "",
-        updatedAt: serverTimestamp()
+        updatedAt: serverTimestamp(),
       };
 
       await setDoc(profileRef, updatedProfile, { merge: true });
 
+      const chatProfileRef = doc(db, "chatProfiles", user.uid);
+
+      await setDoc(
+        chatProfileRef,
+        {
+          displayName: updatedProfile.fullName,
+          updatedAt: serverTimestamp(),
+        },
+        { merge: true },
+      );
+
       setProfile((prev) => ({
         ...prev,
-        subjects: updatedProfile.subjects.join(", ")
+        subjects: updatedProfile.subjects.join(", "),
       }));
 
       setEditing(false);
@@ -136,44 +166,43 @@ function Profile() {
   };
 
   const handleDeleteAccount = async () => {
-  if (!user) return;
+    if (!user) return;
 
-  const confirmed = window.confirm(
-    "Are you sure you want to permanently delete your account? This action cannot be undone."
-  );
+    const confirmed = window.confirm(
+      "Are you sure you want to permanently delete your account? This action cannot be undone.",
+    );
 
-  if (!confirmed) return;
+    if (!confirmed) return;
 
-  const doubleConfirmed = window.confirm(
-    "Final confirmation: Delete your StudyRoom account?"
-  );
+    const doubleConfirmed = window.confirm(
+      "Final confirmation: Delete your StudyRoom account?",
+    );
 
-  if (!doubleConfirmed) return;
+    if (!doubleConfirmed) return;
 
-  try {
-    // Remove the known Firestore profile and dashboard documents
-    await deleteDoc(doc(db, "users", user.uid, "dashboard", "data"));
-    await deleteDoc(doc(db, "users", user.uid));
+    try {
+      // Remove the known Firestore profile and dashboard documents
+      await deleteDoc(doc(db, "users", user.uid, "dashboard", "data"));
+      await deleteDoc(doc(db, "users", user.uid));
 
-    // Delete the Firebase Authentication account
-    await deleteUser(user);
+      // Delete the Firebase Authentication account
+      await deleteUser(user);
 
-    alert("Your account has been deleted successfully.");
-    navigate("/signup", { replace: true });
+      alert("Your account has been deleted successfully.");
+      navigate("/signup", { replace: true });
+    } catch (error) {
+      console.error("Account deletion error:", error);
 
-  } catch (error) {
-    console.error("Account deletion error:", error);
+      if (error.code === "auth/requires-recent-login") {
+        alert(
+          "For security, please log out, log in again, and retry account deletion.",
+        );
+        return;
+      }
 
-    if (error.code === "auth/requires-recent-login") {
-      alert(
-        "For security, please log out, log in again, and retry account deletion."
-      );
-      return;
+      alert("Unable to delete your account. Please try again.");
     }
-
-    alert("Unable to delete your account. Please try again.");
-  }
-};
+  };
 
   if (loading) {
     return <div className="profile-loading">Loading your profile...</div>;
@@ -191,7 +220,9 @@ function Profile() {
   return (
     <div className="profile-page">
       <header className="profile-topbar">
-        <h2>Study<span>Room.</span></h2>
+        <h2>
+          Study<span>Room.</span>
+        </h2>
 
         <button
           className="back-dashboard-btn"
@@ -210,20 +241,17 @@ function Profile() {
           </div>
 
           <div className="profile-account-actions">
-  <button
-    className="logout-btn"
-    onClick={handleLogout}
-  >
-    Logout
-  </button>
+            <button className="logout-btn" onClick={handleLogout}>
+              Logout
+            </button>
 
-  <button
-    className="delete-account-btn"
-    onClick={handleDeleteAccount}
-  >
-    Delete Account
-  </button>
-</div>
+            <button
+              className="delete-account-btn"
+              onClick={handleDeleteAccount}
+            >
+              Delete Account
+            </button>
+          </div>
         </div>
 
         <section className="profile-card">
@@ -267,10 +295,7 @@ function Profile() {
 
                 <div className="profile-field">
                   <label>Email Address</label>
-                  <input
-                    value={user.email || ""}
-                    disabled
-                  />
+                  <input value={user.email || ""} disabled />
                 </div>
 
                 <div className="profile-field">

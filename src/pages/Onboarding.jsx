@@ -62,6 +62,13 @@ function Onboarding() {
 
       await setDoc(profileRef, profileData, { merge: true });
 
+      const chatProfileRef = doc(db, "chatProfiles", user.uid);
+
+await setDoc(chatProfileRef, {
+  displayName: profileData.fullName,
+  updatedAt: serverTimestamp()
+}, { merge: true });
+
       navigate("/dashboard");
 
     } catch (err) {

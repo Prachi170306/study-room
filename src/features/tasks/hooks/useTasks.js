@@ -1,116 +1,120 @@
+import { useEffect, useMemo, useState } from "react";
+import { onAuthStateChanged, signInAnonymously } from "firebase/auth";
 
-import { useEffect, useMemo, useState } from 'react'
-import {
-  onAuthStateChanged,
-  signInAnonymously,
-} from 'firebase/auth'
-
-import { auth } from '../../../firebase'
+import { auth } from "../../../firebase";
 
 import {
   subscribeToTasks,
   addTaskToFirestore,
   updateTaskInFirestore,
   deleteTaskFromFirestore,
-} from '../services/taskService'
+} from "../services/taskService";
 
 export default function useTasks() {
-  const [tasks, setTasks] = useState([])
-  const [userId, setUserId] = useState(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
+  const [tasks, setTasks] = useState([]);
+  const [userId, setUserId] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  const [search, setSearch] = useState('')
-  const [statusFilter, setStatusFilter] = useState('all')
-  const [priorityFilter, setPriorityFilter] = useState('all')
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [priorityFilter, setPriorityFilter] = useState("all");
 
   // Sign in anonymously if no user is logged in
   useEffect(() => {
     const unsubscribeAuth = onAuthStateChanged(auth, async (user) => {
       if (user) {
-        setUserId(user.uid)
-        return
+        console.log("Firebase authentication successful!");
+        console.log("User UID:", user.uid);
+        console.log("Anonymous user:", user.isAnonymous);
+
+        setUserId(user.uid);
+        return;
       }
 
       try {
-        await signInAnonymously(auth)
+        await signInAnonymously(auth);
       } catch (err) {
-        setError(err.message)
-        setLoading(false)
+        console.error("Firebase authentication error:", err);
+        setError(err.message);
+        setLoading(false);
       }
-    })
+    });
 
-    return () => unsubscribeAuth()
-  }, [])
+    return () => unsubscribeAuth();
+  }, []);
 
   // Listen to Firestore changes
   useEffect(() => {
-    if (!userId) return
+    if (!userId) return;
 
-    setLoading(true)
-    setError('')
+    setLoading(true);
+    setError("");
 
     const unsubscribeTasks = subscribeToTasks(
       userId,
       (data) => {
-        setTasks(data)
-        setLoading(false)
+        setTasks(data);
+        setLoading(false);
       },
       (err) => {
-        setError(err.message)
-        setLoading(false)
-      }
-    )
+        setError(err.message);
+        setLoading(false);
+      },
+    );
 
-    return () => unsubscribeTasks()
-  }, [userId])
+    return () => unsubscribeTasks();
+  }, [userId]);
 
-  const stats = useMemo(() => ({
-    total: tasks.length,
-    todo: tasks.filter(task => task.status === 'todo').length,
-    inProgress: tasks.filter(task => task.status === 'in-progress').length,
-    completed: tasks.filter(task => task.status === 'completed').length,
-  }), [tasks])
+  const stats = useMemo(
+    () => ({
+      total: tasks.length,
+      todo: tasks.filter((task) => task.status === "todo").length,
+      inProgress: tasks.filter((task) => task.status === "in-progress").length,
+      completed: tasks.filter((task) => task.status === "completed").length,
+    }),
+    [tasks],
+  );
 
   const filteredTasks = useMemo(() => {
-    return tasks.filter(task => {
-      const searchText = search.toLowerCase()
+    return tasks.filter((task) => {
+      const searchText = search.toLowerCase();
 
       const matchesSearch =
-        (task.title || '').toLowerCase().includes(searchText) ||
-        (task.subject || '').toLowerCase().includes(searchText) ||
-        (task.description || '').toLowerCase().includes(searchText)
+        (task.title || "").toLowerCase().includes(searchText) ||
+        (task.subject || "").toLowerCase().includes(searchText) ||
+        (task.description || "").toLowerCase().includes(searchText);
 
       const matchesStatus =
-        statusFilter === 'all' || task.status === statusFilter
+        statusFilter === "all" || task.status === statusFilter;
 
       const matchesPriority =
-        priorityFilter === 'all' || task.priority === priorityFilter
+        priorityFilter === "all" || task.priority === priorityFilter;
 
-      return matchesSearch && matchesStatus && matchesPriority
-    })
-  }, [tasks, search, statusFilter, priorityFilter])
+      return matchesSearch && matchesStatus && matchesPriority;
+    });
+  }, [tasks, search, statusFilter, priorityFilter]);
 
   async function addTask(taskData) {
-    if (!userId) throw new Error('User authentication is not ready')
+    if (!userId) throw new Error("User authentication is not ready");
 
-    return addTaskToFirestore(userId, taskData)
+    return addTaskToFirestore(userId, taskData);
   }
 
   async function updateTask(id, updatedData) {
-    if (!userId) throw new Error('User authentication is not ready')
+    if (!userId) throw new Error("User authentication is not ready");
 
-    return updateTaskInFirestore(userId, id, updatedData)
+    return updateTaskInFirestore(userId, id, updatedData);
   }
 
   async function deleteTask(id) {
-    if (!userId) throw new Error('User authentication is not ready')
+    if (!userId) throw new Error("User authentication is not ready");
 
-    return deleteTaskFromFirestore(userId, id)
+    return deleteTaskFromFirestore(userId, id);
   }
 
   async function updateTaskStatus(id, status) {
-    return updateTask(id, { status })
+    return updateTask(id, { status });
   }
 
   return {
@@ -129,5 +133,5 @@ export default function useTasks() {
     updateTaskStatus,
     loading,
     error,
-  }
+  };
 }
