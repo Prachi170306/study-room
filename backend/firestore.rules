@@ -25,6 +25,23 @@ service cloud.firestore {
         allow read, write: if request.auth != null
                            && request.auth.uid == userId;
       }
+      // Notifications
+match /notifications/{notificationId} {
+
+  // Users can read only their own notifications
+  allow read: if request.auth != null
+              && request.auth.uid == userId;
+
+  // Users can only update the read status
+  allow update: if request.auth != null
+                && request.auth.uid == userId
+                && request.resource.data.diff(resource.data)
+                   .affectedKeys().hasOnly(['read'])
+                && request.resource.data.read is bool;
+
+  // Notifications are created and deleted by trusted backend processes
+  allow create, delete: if false;
+}
     }
 
     // Public Chat profiles

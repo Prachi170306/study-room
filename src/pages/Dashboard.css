@@ -351,3 +351,228 @@
   transform: translateX(4px);
   box-shadow: 0 5px 15px rgba(108, 99, 255, 0.25);
 }
+/* Header action buttons */
+.dashboard-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.notification-bell {
+  position: relative;
+  background: #1c1c2b;
+  border: 1px solid #353047;
+  color: white;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  font-size: 20px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.notification-bell:hover {
+  background: #29243b;
+  border-color: #9333ea;
+}
+
+.notification-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: #9333ea;
+  color: white;
+  font-size: 11px;
+  font-weight: bold;
+  min-width: 19px;
+  height: 19px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Notification overlay */
+.notification-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  border: none;
+  z-index: 1000;
+  cursor: pointer;
+}
+
+/* Slide-out notification drawer */
+.notification-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 380px;
+  max-width: 90%;
+  height: 100vh;
+  background: #1c1c2b;
+  border-left: 1px solid #353047;
+  padding: 28px 24px;
+  z-index: 1001;
+  overflow-y: auto;
+  box-shadow: -10px 0 35px rgba(0, 0, 0, 0.35);
+  animation: slideInNotification 0.3s ease;
+}
+
+@keyframes slideInNotification {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+/* Drawer header */
+.notification-drawer-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding-bottom: 22px;
+  border-bottom: 1px solid #353047;
+}
+
+.notification-drawer-header h2 {
+  color: white;
+  font-size: 23px;
+  margin: 0 0 7px;
+}
+
+.notification-drawer-header p {
+  color: #aaa3bd;
+  font-size: 13px;
+  margin: 0;
+}
+
+.notification-close {
+  background: transparent;
+  border: none;
+  color: #aaa3bd;
+  font-size: 30px;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.notification-close:hover {
+  color: white;
+}
+
+/* Notification items */
+.notification-list {
+  display: flex;
+  flex-direction: column;
+  margin-top: 15px;
+}
+
+.notification-item {
+  display: flex;
+  gap: 14px;
+  padding: 18px 12px;
+  border-bottom: 1px solid #353047;
+  border-radius: 8px;
+}
+
+.notification-item.unread {
+  background: rgba(147, 51, 234, 0.09);
+}
+
+.notification-icon {
+  font-size: 22px;
+  flex-shrink: 0;
+}
+
+.notification-item h3 {
+  color: white;
+  font-size: 14px;
+  margin: 0 0 6px;
+}
+
+.notification-item p {
+  color: #c4bdd3;
+  font-size: 13px;
+  line-height: 1.5;
+  margin: 0 0 8px;
+}
+
+.notification-item small {
+  color: #928aa5;
+  font-size: 11px;
+}
+
+/* Mobile adjustments */
+@media (max-width: 600px) {
+  .notification-drawer {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .dashboard-header-actions {
+    gap: 10px;
+  }
+}
+/* Mark all as read button */
+.mark-all-read {
+  background: transparent;
+  border: none;
+  color: #c084fc;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 8px 0 0;
+}
+
+.mark-all-read:hover {
+  color: #d8b4fe;
+  text-decoration: underline;
+}
+
+/* Make notification items clickable */
+.notification-item {
+  position: relative;
+  width: 100%;
+  text-align: left;
+  font-family: inherit;
+  color: inherit;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+/* Unread notification */
+.notification-item.unread {
+  background: rgba(147, 51, 234, 0.13);
+  border-color: rgba(147, 51, 234, 0.18);
+}
+
+/* Read notification */
+.notification-item.read {
+  background: transparent;
+  opacity: 0.65;
+}
+
+.notification-item.read:hover,
+.notification-item.unread:hover {
+  background: rgba(147, 51, 234, 0.2);
+  opacity: 1;
+}
+
+/* Notification text */
+.notification-content {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Purple dot for unread notifications */
+.unread-dot {
+  width: 9px;
+  height: 9px;
+  background: #a855f7;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 6px;
+}
