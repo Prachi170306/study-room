@@ -18,21 +18,24 @@ import { ChatPage } from "./features/chat";
 import { TasksPage } from "./features/tasks";
 import { NotificationsPage } from "./features/notifications";
 import { FocusRoom } from "./features/focus";
-//import { ProgressRoom } from "./features/progress";
+import { RoomPage, StudyRoom } from "./features/studyroom";
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
         {/* Default route */}
-        <Route path="/" element={<Navigate to="/login" replace />} />
+        <Route
+          path="/"
+          element={<Navigate to="/login" replace />}
+        />
 
         {/* Authentication */}
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/onboarding" element={<Onboarding />} />
 
-        {/* Main dashboard and profile */}
+        {/* Dashboard and profile */}
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/profile" element={<Profile />} />
 
@@ -42,8 +45,15 @@ function App() {
         <Route path="/notifications" element={<NotificationsPage />} />
         <Route path="/focus" element={<FocusRoom />} />
 
+        {/* Study Rooms */}
+        <Route path="/studyroom" element={<StudyRoom />} />
+        <Route path="/study-room/:roomId" element={<RoomPage />} />
+
         {/* Unknown routes */}
-        <Route path="*" element={<Navigate to="/login" replace />} />
+        <Route
+          path="*"
+          element={<Navigate to="/login" replace />}
+        />
       </Routes>
     </BrowserRouter>
   );
