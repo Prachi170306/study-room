@@ -194,3 +194,33 @@
     padding: 25px 15px;
   }
 }
+.online-status {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.online-status.online {
+  color: #16a34a;
+}
+
+.online-status.offline {
+  color: #9ca3af;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.online-status.online .status-dot {
+  background-color: #16a34a;
+}
+
+.online-status.offline .status-dot {
+  background-color: #9ca3af;
+}

@@ -18,7 +18,7 @@ import { ChatPage } from "./features/chat";
 import { TasksPage } from "./features/tasks";
 import { NotificationsPage } from "./features/notifications";
 import { FocusRoom } from "./features/focus";
-// import { ProgressRoom } from "./features/progress";
+import { RoomPage, StudyRoom } from "./features/studyroom";
 
 function App() {
   return (
@@ -41,6 +41,10 @@ function App() {
         <Route path="/tasks" element={<TasksPage />} />
         <Route path="/notifications" element={<NotificationsPage />} />
         <Route path="/focus" element={<FocusRoom />} />
+
+        {/* Study Rooms */}
+        <Route path="/studyroom" element={<StudyRoom />} />
+        <Route path="/study-room/:roomId" element={<RoomPage />} />
 
         {/* Unknown routes */}
         <Route path="*" element={<Navigate to="/login" replace />} />
