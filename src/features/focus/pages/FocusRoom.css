@@ -1,0 +1,175 @@
+
+/* ===== FOCUS ROOM PAGE ===== */
+
+.focus-container {
+  min-height: 100vh;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 45px 35px;
+  background: #f5f7fc;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: inherit;
+  color: #1c2940;
+}
+
+/* ===== MAIN CARD ===== */
+
+.focus-card {
+  width: 100%;
+  max-width: 850px;
+  background: #ffffff;
+  border: 1px solid #e5eaf3;
+  border-radius: 20px;
+  padding: 45px 55px;
+  box-sizing: border-box;
+  text-align: center;
+  box-shadow: 0 3px 12px rgba(35, 48, 75, 0.06);
+}
+
+/* ===== HEADING ===== */
+
+.focus-card h1 {
+  font-size: 34px;
+  font-weight: 700;
+  color: #1c2940;
+  margin: 0 0 10px;
+  letter-spacing: -0.8px;
+}
+
+.focus-card .subtitle {
+  font-size: 16px;
+  color: #7185a5;
+  margin: 0 0 35px;
+}
+
+/* ===== MODE BUTTONS ===== */
+
+.mode-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 35px;
+}
+
+.mode-buttons button {
+  padding: 11px 30px;
+  border: none;
+  border-radius: 12px;
+  background: #f0f2ff;
+  color: #5138f5;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.mode-buttons button:hover {
+  background: #e5e7ff;
+  transform: translateY(-2px);
+}
+
+.mode-buttons button.active {
+  background: #5138f5;
+  color: #ffffff;
+  box-shadow: 0 4px 10px rgba(81, 56, 245, 0.2);
+}
+
+
+/* ===== CIRCULAR TIMER ===== */
+
+.circular-timer {
+  width: 280px;
+  height: 280px;
+  position: relative;
+  margin: 15px auto 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.progress-ring {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+  overflow: visible;
+}
+
+.progress-ring-bg,
+.progress-ring-fill {
+  fill: none;
+  stroke-width: 9;
+}
+
+.progress-ring-bg {
+  stroke: #e9eaff;
+}
+
+.progress-ring-fill {
+  stroke: #5138f5;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.8s linear;
+  filter: drop-shadow(0 2px 4px rgba(81, 56, 245, 0.2));
+}
+
+/* ===== TIMER TEXT ===== */
+
+.circular-timer .timer {
+  font-size: 58px;
+  font-weight: 750;
+  letter-spacing: -2px;
+  color: #252b40;
+  font-variant-numeric: tabular-nums;
+  margin: 0;
+  line-height: 1;
+  z-index: 1;
+}
+
+.timer-controls button {
+    min-width: 110px;
+    padding: 13px 22px;
+    background-color:#5138f5d3;
+    margin: 5px;
+    color: #e5e7ff;
+    border-radius: 12px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+
+/* ===== RESPONSIVE ===== */
+
+@media (max-width: 480px) {
+  .circular-timer {
+    width: 240px;
+    height: 240px;
+  }
+
+  .circular-timer .timer {
+    font-size: 48px;
+  }
+}
+
+@media (max-width: 768px) {
+  .focus-container {
+    padding: 25px 15px;
+  }
+
+  .focus-card {
+    padding: 35px 22px;
+  }
+
+  .focus-card h1 {
+    font-size: 28px;
+  }
+
+  .timer {
+    font-size: 72px;
+  }
+
+  .timer-controls button {
+    min-width: 110px;
+    padding: 13px 22px;
+  }
+}
