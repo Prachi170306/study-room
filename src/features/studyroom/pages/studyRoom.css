@@ -1,0 +1,148 @@
+
+.studyroom-container {
+  min-height: 100vh;
+  padding: 50px 30px;
+  background: #f5f6fc;
+  color: #202943;
+  box-sizing: border-box;
+}
+
+.studyroom-header {
+  text-align: center;
+  margin-bottom: 55px;
+}
+
+.studyroom-header h1 {
+  font-size: 38px;
+  margin-bottom: 12px;
+  color: #202943;
+}
+
+.studyroom-header p {
+  color: #7183a8;
+  font-size: 17px;
+}
+
+.studyroom-cards {
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  gap: 35px;
+  flex-wrap: wrap;
+}
+
+.studyroom-card {
+  width: 340px;
+  padding: 35px;
+  background: white;
+  border-radius: 22px;
+  text-align: center;
+  box-shadow: 0 8px 25px rgba(60, 70, 120, 0.08);
+  box-sizing: border-box;
+}
+
+.studyroom-icon {
+  width: 65px;
+  height: 65px;
+  margin: 0 auto 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #eeeeff;
+  color: #563bfa;
+  border-radius: 18px;
+  font-size: 32px;
+}
+
+.studyroom-card h2 {
+  font-size: 23px;
+  margin-bottom: 12px;
+}
+
+.studyroom-card p {
+  color: #7b88a5;
+  line-height: 1.6;
+  min-height: 52px;
+  margin-bottom: 25px;
+}
+
+.studyroom-card input {
+  width: 100%;
+  padding: 14px;
+  border: 1px solid #e0e3f0;
+  border-radius: 10px;
+  outline: none;
+  margin-bottom: 18px;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+.studyroom-card input:focus {
+  border-color: #6545ff;
+}
+
+.studyroom-card button {
+  width: 100%;
+  padding: 14px;
+  background: #583bfa;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.studyroom-card button:hover {
+  background: #4326dc;
+  transform: translateY(-2px);
+}
+
+@media (max-width: 600px) {
+  .studyroom-container {
+    padding: 35px 18px;
+  }
+
+  .studyroom-card {
+    width: 100%;
+    padding: 25px;
+  }
+}
+
+
+.room-id-display {
+  margin-top: 20px;
+  padding: 15px;
+  background: #f1efff;
+  border-radius: 12px;
+  overflow-wrap: anywhere;
+}
+
+.room-id-display p {
+  margin-bottom: 8px;
+}
+
+.room-id-display strong {
+  color: #5638ff;
+  display: block;
+  margin-bottom: 12px;
+}
+
+.room-id-display button {
+  width: 100%;
+  margin-top: 5px;
+}
+
+.room-message {
+  text-align: center;
+  margin-top: 25px;
+  color: #5638ff;
+  font-weight: 600;
+}
+
+.studyroom-card button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+

@@ -12,6 +12,7 @@ import { NotificationsPage } from './features/notifications'
 import DoubtCorner from './features/doubts/pages/DoubtCorner'
 import ResourceLibrary from './features/resources/pages/ResourceLibrary'
 import { FocusRoom } from './features/focus'
+import { RoomPage, StudyRoom } from './features/studyroom'
 
 export default function App() {
   return (
@@ -20,9 +21,17 @@ export default function App() {
         <Route path="/chat" element={<ChatPage />} />
         <Route path="/tasks" element={<TasksPage />} />
         <Route path="/notifications" element={<NotificationsPage />} />
+
+        {/* Member 4: Resource Library and Doubt Corner */}
         <Route path="/resources" element={<ResourceLibrary />} />
         <Route path="/doubts" element={<DoubtCorner />} />
+
+        {/* Member 5: Focus Room */}
         <Route path="/focus" element={<FocusRoom />} />
+
+        {/* Member 2: Study Rooms */}
+        <Route path="/studyroom" element={<StudyRoom />} />
+        <Route path="/study-room/:roomId" element={<RoomPage />} />
 
         <Route path="/" element={<Navigate to="/chat" replace />} />
         <Route path="*" element={<Navigate to="/chat" replace />} />
