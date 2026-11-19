@@ -3,7 +3,7 @@ import {doc,getDoc,updateDoc,onSnapshot,serverTimestamp,runTransaction } from "f
 import { db } from "../../../firebase/firebase";
 
 // Timer durations (in seconds)
-const FOCUS_TIME = 10;
+const FOCUS_TIME = 5*60;
 const BREAK_TIME = 5 * 60;
 
 // Get room document reference
@@ -111,8 +111,6 @@ export const listenToSharedTimer = (roomId, callback) => {
   });
 };
 
-
-// 5. COMPLETE TIMER AND RECORD FOCUS SESSION
 
 // 5. COMPLETE TIMER AND RECORD FOCUS SESSION
 export const completeSharedTimer = async (roomId, userId) => {

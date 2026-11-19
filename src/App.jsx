@@ -9,7 +9,7 @@ import { ChatPage } from './features/chat'
 import { TasksPage } from './features/tasks'
 import { NotificationsPage } from './features/notifications'
 import {FocusRoom} from './features/focus'
-// import {ProgressRoom} from './features/progress'
+import {ProgressRoom} from './features/progress'
 import {RoomPage,StudyRoom} from './features/studyroom'
 
 export default function App() {
@@ -53,6 +53,11 @@ export default function App() {
         <Route
         path='/study-room/:roomId'
         element={<RoomPage/>}
+        />
+
+        <Route
+        path = '/progress'
+        element = {<ProgressRoom/>}
         />
 
       </Routes>
