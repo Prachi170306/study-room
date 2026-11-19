@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import "./studyRoom.css";
-import { auth } from "../../../firebase/firebase";
+import { auth } from "../../../firebase";
 
 import {
   createStudyRoom,

@@ -12,6 +12,9 @@ import Onboarding from "./pages/Onboarding";
 import Dashboard from "./pages/Dashboard";
 import Profile from "./pages/Profile";
 
+import ResourceLibrary from "./features/resources/pages/ResourceLibrary";
+import DoubtCorner from "./features/doubts/pages/DoubtCorner";
+
 // Team features
 import { ChatPage } from "./features/chat";
 import { TasksPage } from "./features/tasks";
@@ -34,8 +37,12 @@ function App() {
         <Route path="/signup" element={<Signup />} />
         <Route path="/onboarding" element={<Onboarding />} />
 
-        {/* Dashboard and profile */}
-        <Route path="/dashboard" element={<Dashboard />} />
+        {/* Dashboard with shared layout */}
+        <Route path="/dashboard" element={<Dashboard />}>
+          <Route path="resources" element={<ResourceLibrary />} />
+          <Route path="doubts" element={<DoubtCorner />} />
+        </Route>
+
         <Route path="/profile" element={<Profile />} />
 
         {/* Team features */}

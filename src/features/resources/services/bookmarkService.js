@@ -1,17 +1,41 @@
-const STORAGE_KEY = 'studysphere_bookmarks'
+import {
+  collection,
+  doc,
+  getDocs,
+  setDoc,
+  deleteDoc,
+} from 'firebase/firestore'
 
-export const getBookmarks = () => {
-  return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]')
+import { auth, db } from '../../../firebase'
+
+const getBookmarkCollection = () => {
+  const user = auth.currentUser
+
+  if (!user) throw new Error('Please sign in first.')
+
+  return collection(db, 'users', user.uid, 'bookmarks')
 }
 
-export const toggleBookmark = (resourceId) => {
-  const bookmarks = getBookmarks()
+export const getBookmarks = async () => {
+  const snapshot = await getDocs(getBookmarkCollection())
+  return snapshot.docs.map((item) => item.id)
+}
 
-  const updatedBookmarks = bookmarks.includes(resourceId)
-    ? bookmarks.filter((id) => id !== resourceId)
-    : [...bookmarks, resourceId]
+export const toggleBookmark = async (resourceId) => {
+  const bookmarks = getBookmarkCollection()
+  const bookmarkRef = doc(bookmarks, resourceId)
 
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedBookmarks))
+  const snapshot = await getDocs(bookmarks)
+  const exists = snapshot.docs.some((item) => item.id === resourceId)
 
-  return updatedBookmarks
+  if (exists) {
+    await deleteDoc(bookmarkRef)
+  } else {
+    await setDoc(bookmarkRef, {
+      resourceId,
+      createdAt: new Date(),
+    })
+  }
+
+  return getBookmarks()
 }

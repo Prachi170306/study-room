@@ -4,7 +4,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { onAuthStateChanged } from "firebase/auth";
 import { doc, onSnapshot } from "firebase/firestore";
 
-import { db, auth } from "../../../firebase/firebase";
+import { db, auth } from "../../../firebase";
 import "./RoomPage.css";
 
 import {

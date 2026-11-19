@@ -8,7 +8,7 @@ import {
   serverTimestamp
 } from "firebase/firestore";
 
-import { db } from "../../../firebase/firebase";
+import { db } from "../../../firebase";
 
 const roomsRef = collection(db, "studyRooms");
 

@@ -1,39 +1,20 @@
 
 import { useState, useEffect } from 'react'
-import { getDoubts, saveDoubts } from '../services/doubtService'
+import { onAuthStateChanged } from 'firebase/auth'
+import { auth } from '../../../firebase'
+import {
+  subscribeToDoubts,
+  addDoubt,
+  deleteDoubt,
+  addAnswer,
+  deleteAnswer,
+  toggleAcceptedAnswer,
+} from '../services/doubtService'
 
-const MAX_FILE_SIZE = 5 * 1024 * 1024
+const MAX_FILE_SIZE = 500 * 1024
 
 export default function DoubtCorner() {
-  const [questions, setQuestions] = useState(() => {
-    const saved = getDoubts()
-
-    return saved.map((question) => ({
-      ...question,
-      answers: (question.answers || []).map((answer, index) => {
-        if (typeof answer === 'string') {
-          return {
-            id: `legacy-${question.id}-${index}`,
-            text: answer,
-            author: 'You',
-            link: '',
-            attachment: null,
-          }
-        }
-
-        return {
-          ...answer,
-          id: answer.id || `legacy-${question.id}-${index}`,
-          text: answer.text || '',
-          author: answer.author || 'You',
-          link: answer.link || '',
-          attachment: answer.attachment || null,
-        }
-      }),
-      acceptedAnswerId: question.acceptedAnswerId || null,
-    }))
-  })
-
+  const [questions, setQuestions] = useState([])
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [search, setSearch] = useState('')
@@ -41,38 +22,62 @@ export default function DoubtCorner() {
   const [linkInputs, setLinkInputs] = useState({})
   const [fileInputs, setFileInputs] = useState({})
   const [uploading, setUploading] = useState({})
+  const [error, setError] = useState('')
 
-  // Save questions through the service
   useEffect(() => {
-    const saved = saveDoubts(questions)
+    let unsubscribeDoubts = null
 
-    if (!saved) {
-      alert('Storage is full. Please remove some attachments.')
+    const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
+      if (unsubscribeDoubts) {
+        unsubscribeDoubts()
+        unsubscribeDoubts = null
+      }
+
+      if (!user) {
+        setQuestions([])
+        setError('Please sign in to use Doubt Corner.')
+        return
+      }
+
+      setError('')
+      unsubscribeDoubts = subscribeToDoubts(
+        (items) => {
+          setQuestions(items.map((question) => ({
+            ...question,
+            answers: question.answers || [],
+            acceptedAnswerId: question.acceptedAnswerId || null,
+          })))
+        },
+        (err) => {
+          console.error('Doubt Corner loading failed:', err)
+          setError('Unable to load questions. Please try again.')
+        }
+      )
+    })
+
+    return () => {
+      unsubscribeAuth()
+      if (unsubscribeDoubts) unsubscribeDoubts()
     }
-  }, [questions])
+  }, [])
 
-  // Create question
-  const handlePostQuestion = (e) => {
+
+  const handlePostQuestion = async (e) => {
     e.preventDefault()
-
     if (!title.trim() || !description.trim()) return
 
-    const newQuestion = {
-      id: Date.now(),
-      title: title.trim(),
-      description: description.trim(),
-      author: 'You',
-      createdAt: new Date().toLocaleDateString(),
-      answers: [],
-      acceptedAnswerId: null,
+    try {
+      await addDoubt({
+        title: title.trim(),
+        description: description.trim(),
+      })
+      setTitle('')
+      setDescription('')
+    } catch (err) {
+      alert(err.message || 'Unable to post question.')
     }
-
-    setQuestions((prev) => [newQuestion, ...prev])
-    setTitle('')
-    setDescription('')
   }
 
-  // Create answer
   const handlePostAnswer = async (e, questionId) => {
     e.preventDefault()
 
@@ -90,11 +95,9 @@ export default function DoubtCorner() {
     if (rawLink) {
       try {
         const parsed = new URL(rawLink)
-
         if (!['http:', 'https:'].includes(parsed.protocol)) {
           throw new Error('Invalid link')
         }
-
         link = parsed.href
       } catch {
         alert('Please enter a valid link starting with https://')
@@ -116,7 +119,7 @@ export default function DoubtCorner() {
       }
 
       if (file.size > MAX_FILE_SIZE) {
-        alert('File must be smaller than 5 MB.')
+        alert('File must be smaller than 500 KB.')
         return
       }
     }
@@ -129,38 +132,24 @@ export default function DoubtCorner() {
       if (file) {
         attachment = await new Promise((resolve, reject) => {
           const reader = new FileReader()
-
           reader.onload = () =>
             resolve({
               name: file.name,
               type: file.type,
               dataUrl: reader.result,
             })
-
           reader.onerror = reject
           reader.readAsDataURL(file)
         })
       }
 
-      const newAnswer = {
+      await addAnswer(questionId, {
         id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
         text,
-        author: 'You',
         link,
         attachment,
         createdAt: new Date().toLocaleDateString(),
-      }
-
-      setQuestions((prev) =>
-        prev.map((question) =>
-          question.id === questionId
-            ? {
-                ...question,
-                answers: [...question.answers, newAnswer],
-              }
-            : question
-        )
-      )
+      })
 
       setAnswerInputs((prev) => ({ ...prev, [questionId]: '' }))
       setLinkInputs((prev) => ({ ...prev, [questionId]: '' }))
@@ -168,60 +157,41 @@ export default function DoubtCorner() {
 
       const input = document.getElementById(`answer-file-${questionId}`)
       if (input) input.value = ''
-    } catch {
-      alert('Unable to read the attachment. Please try again.')
+    } catch (err) {
+      alert(err.message || 'Unable to post answer.')
     } finally {
       setUploading((prev) => ({ ...prev, [questionId]: false }))
     }
   }
 
-  // Delete question
-  const handleDeleteQuestion = (questionId) => {
+  const handleDeleteQuestion = async (questionId) => {
     if (!window.confirm('Delete this question and all its answers?')) return
 
-    setQuestions((prev) =>
-      prev.filter((question) => question.id !== questionId)
-    )
+    try {
+      await deleteDoubt(questionId)
+    } catch (err) {
+      alert(err.message || 'Unable to delete question.')
+    }
   }
 
-  // Delete answer
-  const handleDeleteAnswer = (questionId, answerIndex) => {
+  const handleDeleteAnswer = async (questionId, answerId) => {
     if (!window.confirm('Delete this answer?')) return
 
-    setQuestions((prev) =>
-      prev.map((question) =>
-        question.id === questionId
-          ? {
-              ...question,
-              answers: question.answers.filter(
-                (_, index) => index !== answerIndex
-              ),
-              acceptedAnswerId:
-                question.answers[answerIndex]?.id === question.acceptedAnswerId
-                  ? null
-                  : question.acceptedAnswerId,
-            }
-          : question
-      )
-    )
+    try {
+      await deleteAnswer(questionId, answerId)
+    } catch (err) {
+      alert(err.message || 'Unable to delete answer.')
+    }
   }
 
-  // Accept answer
-  const handleAcceptAnswer = (questionId, answerId) => {
-    setQuestions((prev) =>
-      prev.map((question) =>
-        question.id === questionId
-          ? {
-              ...question,
-              acceptedAnswerId:
-                question.acceptedAnswerId === answerId ? null : answerId,
-            }
-          : question
-      )
-    )
+  const handleAcceptAnswer = async (questionId, answerId) => {
+    try {
+      await toggleAcceptedAnswer(questionId, answerId)
+    } catch (err) {
+      alert(err.message || 'Unable to update accepted answer.')
+    }
   }
 
-  // Search
   const filteredQuestions = questions.filter((question) =>
     `${question.title} ${question.description}`
       .toLowerCase()
@@ -232,163 +202,195 @@ export default function DoubtCorner() {
     (question) => question.answers.length > 0
   ).length
 
-  return (
-    <div className="min-h-screen bg-slate-50 p-6 md:p-10">
-      <div className="mx-auto max-w-7xl">
+  const inputStyle =
+    'w-full rounded-lg border border-[#39364f] bg-[#11111b] px-4 py-3 text-white placeholder:text-[#8580a5] outline-none focus:border-violet-500'
 
-        <div className="mb-10">
-          <p className="text-sm font-semibold text-indigo-600">
-            STUDYSPHERE / COMMUNITY
+  const primaryButton =
+    'rounded-lg bg-violet-600 px-5 py-3 font-medium text-white hover:bg-violet-700 disabled:cursor-not-allowed disabled:opacity-50'
+
+  return (
+    <main className="w-full text-white">
+      <div className="w-full">
+
+        {/* Header */}
+        <header className="mb-8">
+          <h2 className="text-2xl font-semibold">Doubt Corner</h2>
+          <p className="mt-2 text-sm text-[#aaa5c5]">
+            Ask questions and help other students learn.
           </p>
-          <h1 className="mt-2 text-3xl font-bold text-slate-900">
-            Doubt Corner
-          </h1>
-          <p className="mt-2 text-slate-500">
-            Ask questions, share knowledge and learn together.
-          </p>
-        </div>
+        </header>
 
         {/* Statistics */}
-        <div className="mb-8 grid gap-4 sm:grid-cols-2">
-          <div className="rounded-2xl bg-white p-5 shadow-sm">
-            <p className="text-sm text-slate-500">Total Questions</p>
-            <h2 className="mt-2 text-3xl font-bold text-slate-900">
-              {questions.length}
-            </h2>
+        <section className="mb-8 grid grid-cols-1 gap-5 sm:grid-cols-2">
+          <div className="rounded-xl border border-[#302e43] bg-[#1c1c2b] p-5">
+            <p className="text-sm font-medium text-[#aaa5c5]">Total Questions</p>
+            <p className="mt-3 text-4xl font-bold">{questions.length}</p>
+            <p className="mt-2 text-xs text-violet-300">Community discussions</p>
           </div>
 
-          <div className="rounded-2xl bg-white p-5 shadow-sm">
-            <p className="text-sm text-slate-500">Answered Questions</p>
-            <h2 className="mt-2 text-3xl font-bold text-green-600">
-              {answeredCount}
-            </h2>
+          <div className="rounded-xl border border-[#302e43] bg-[#1c1c2b] p-5">
+            <p className="text-sm font-medium text-[#aaa5c5]">Answered Questions</p>
+            <p className="mt-3 text-4xl font-bold text-emerald-400">{answeredCount}</p>
+            <p className="mt-2 text-xs text-emerald-300">Questions with responses</p>
           </div>
-        </div>
+        </section>
 
-        {/* Question Form */}
-        <div className="mb-8 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-          <h2 className="mb-5 text-xl font-bold text-slate-900">
-            Ask a Question
-          </h2>
+        {/* Ask Question */}
+        <section className="mb-6 rounded-xl border border-[#302e43] bg-[#1c1c2b] p-5">
+          <div className="mb-6">
+            <span className="text-2xl">💡</span>
+            <h2 className="mt-3 text-xl font-bold">Ask the Community</h2>
+            <p className="mt-1 text-sm text-[#aaa5c5]">
+              Explain your doubt clearly so others can help you.
+            </p>
+          </div>
 
           <form onSubmit={handlePostQuestion} className="space-y-4">
             <input
               type="text"
-              placeholder="Enter your question title..."
+              placeholder="Give your question a clear title..."
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none focus:border-indigo-500"
+              className={inputStyle}
               required
             />
 
             <textarea
-              placeholder="Explain your doubt in detail..."
+              placeholder="Describe your doubt in detail..."
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              rows={4}
-              className="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none focus:border-indigo-500"
+              rows={5}
+              className={`${inputStyle} resize-y`}
               required
             />
 
-            <button
-              type="submit"
-              className="rounded-xl bg-indigo-600 px-6 py-3 font-semibold text-white hover:bg-indigo-700"
-            >
-              + Post Question
-            </button>
+            <div className="flex justify-end">
+              <button type="submit" className={primaryButton}>
+                + Post Question
+              </button>
+            </div>
           </form>
-        </div>
+        </section>
 
-        {/* Search */}
-        <div className="mb-6">
+        {/* Question List Header */}
+        <section className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h2 className="text-xl font-bold">Community Questions</h2>
+            <p className="mt-1 text-sm text-[#aaa5c5]">
+              Browse questions and share your solutions.
+            </p>
+          </div>
+
           <input
-            type="text"
+            type="search"
             placeholder="Search questions..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 outline-none focus:border-indigo-500 sm:max-w-md"
+            className={`${inputStyle} sm:max-w-sm`}
           />
-        </div>
+        </section>
 
         {/* Questions */}
-        <div className="space-y-5">
+        {error && (
+          <p className="mb-4 rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-300">
+            {error}
+          </p>
+        )}
+        <section className="space-y-6">
           {filteredQuestions.length > 0 ? (
             filteredQuestions.map((question) => (
-              <div
+              <article
                 key={question.id}
-                className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"
+                className="rounded-xl border border-[#302e43] bg-[#1c1c2b] p-5"
               >
-                <div className="flex items-start justify-between gap-4">
-                  <h3 className="text-lg font-bold text-slate-900">
-                    {question.title}
-                  </h3>
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                  <div className="min-w-0">
+                    <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-violet-400">
+                      Question
+                    </p>
+                    <h3 className="break-words text-lg font-bold leading-7 sm:text-xl">
+                      {question.title}
+                    </h3>
+                  </div>
 
                   <span
-                    className={`shrink-0 rounded-full px-3 py-1 text-xs font-semibold ${
+                    className={`w-fit shrink-0 rounded-full px-3 py-1.5 text-xs font-semibold ${
                       question.answers.length > 0
-                        ? 'bg-green-50 text-green-700'
-                        : 'bg-amber-50 text-amber-700'
+                        ? 'bg-emerald-500/15 text-emerald-300'
+                        : 'bg-amber-500/15 text-amber-300'
                     }`}
                   >
-                    {question.answers.length > 0 ? 'Answered' : 'Open'}
+                    {question.answers.length > 0 ? 'Answered' : 'Awaiting answers'}
                   </span>
                 </div>
 
-                <p className="mt-3 text-sm leading-6 text-slate-600">
+                <p className="mt-4 whitespace-pre-wrap break-words text-sm leading-7 text-[#c4bfe0]">
                   {question.description}
                 </p>
 
-                <div className="mt-4 flex items-center justify-between">
-                  <span className="text-xs text-slate-400">
-                    {question.author} • {question.createdAt}
+                <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-b border-[#39364f] pb-5">
+                  <span className="text-xs text-[#8580a5]">
+                    Posted by {question.author} · {question.createdAt?.toDate
+                      ? question.createdAt.toDate().toLocaleDateString()
+                      : question.createdAt || 'Just now'}
                   </span>
-
-                  <button
-                    onClick={() => handleDeleteQuestion(question.id)}
-                    className="text-sm font-semibold text-red-600 hover:text-red-800"
-                  >
-                    Delete Question
-                  </button>
+                  {question.ownerId === auth.currentUser?.uid && (
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteQuestion(question.id)}
+                      className="rounded-lg px-3 py-2 text-xs font-semibold text-red-400 transition hover:bg-red-500/10"
+                    >
+                      Delete Question
+                    </button>
+                  )}
                 </div>
 
                 {/* Answers */}
-                <div className="mt-6 border-t border-slate-200 pt-5">
-                  <h4 className="mb-4 font-bold text-slate-800">
-                    Answers ({question.answers.length})
+                <div className="mt-6">
+                  <h4 className="mb-4 font-bold">
+                    Answers <span className="text-violet-400">({question.answers.length})</span>
                   </h4>
 
                   {question.answers.length > 0 ? (
                     <div className="space-y-4">
                       {question.answers.map((answer, index) => {
-                        const isAccepted =
-                          question.acceptedAnswerId === answer.id
+                        const isAccepted = question.acceptedAnswerId === answer.id
+                        const isQuestionOwner = question.ownerId === auth.currentUser?.uid
 
                         return (
                           <div
                             key={answer.id || index}
-                            className={`rounded-xl border p-4 ${
+                            className={`rounded-xl border p-4 sm:p-5 ${
                               isAccepted
-                                ? 'border-green-200 bg-green-50'
-                                : 'border-slate-100 bg-slate-50'
+                                ? 'border-emerald-500/50 bg-emerald-500/5'
+                                : 'border-[#39364f] bg-[#151522]'
                             }`}
                           >
-                            <div className="mb-3 flex items-center justify-between gap-3">
-                              <span className="text-sm font-semibold text-slate-800">
+                            <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+                              <span className="text-sm font-semibold">
                                 {answer.author || 'Student'}
                               </span>
 
-                              <button
-                                onClick={() =>
-                                  handleDeleteAnswer(question.id, index)
-                                }
-                                className="text-xs font-semibold text-red-600 hover:text-red-800"
-                              >
-                                Delete
-                              </button>
+                              <div className="flex items-center gap-2">
+                                {isAccepted && (
+                                  <span className="rounded-full bg-emerald-500/15 px-3 py-1 text-xs font-semibold text-emerald-300">
+                                    ✓ Accepted
+                                  </span>
+                                )}
+                                {isQuestionOwner && (
+                                  <button
+                                    type="button"
+                                    onClick={() => handleDeleteAnswer(question.id, answer.id)}
+                                    className="rounded-lg px-2 py-1 text-xs font-semibold text-red-400 hover:bg-red-500/10"
+                                  >
+                                    Delete
+                                  </button>
+                                )}
+                              </div>
                             </div>
 
                             {answer.text && (
-                              <p className="whitespace-pre-wrap text-sm leading-6 text-slate-700">
+                              <p className="whitespace-pre-wrap break-words text-sm leading-7 text-[#d5d0e8]">
                                 {answer.text}
                               </p>
                             )}
@@ -398,7 +400,7 @@ export default function DoubtCorner() {
                                 href={answer.link}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="mt-3 block break-all text-sm font-semibold text-indigo-600 hover:underline"
+                                className="mt-3 block break-all text-sm font-semibold text-violet-400 hover:underline"
                               >
                                 🔗 {answer.link}
                               </a>
@@ -409,9 +411,9 @@ export default function DoubtCorner() {
                                 <img
                                   src={answer.attachment.dataUrl}
                                   alt={answer.attachment.name}
-                                  className="max-h-72 rounded-xl border object-contain"
+                                  className="max-h-72 max-w-full rounded-xl border border-[#39364f] object-contain"
                                 />
-                                <p className="mt-2 text-xs text-slate-500">
+                                <p className="mt-2 text-xs text-[#aaa5c5]">
                                   {answer.attachment.name}
                                 </p>
                               </div>
@@ -422,53 +424,50 @@ export default function DoubtCorner() {
                                 href={answer.attachment.dataUrl}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="mt-4 flex items-center gap-3 rounded-xl border bg-white p-4 hover:bg-indigo-50"
+                                className="mt-4 flex items-center gap-3 rounded-xl border border-[#39364f] bg-[#1c1c2b] p-4 transition hover:border-violet-500"
                               >
                                 <span className="text-3xl">📄</span>
-                                <span>
-                                  <span className="block text-sm font-semibold text-slate-800">
+                                <span className="min-w-0">
+                                  <span className="block break-all text-sm font-semibold">
                                     {answer.attachment.name}
                                   </span>
-                                  <span className="text-xs text-indigo-600">
-                                    Open PDF
-                                  </span>
+                                  <span className="text-xs text-violet-400">Open PDF</span>
                                 </span>
                               </a>
                             )}
 
-                            <div className="mt-4 border-t border-slate-200 pt-3">
-                              <button
-                                onClick={() =>
-                                  handleAcceptAnswer(question.id, answer.id)
-                                }
-                                className={`text-sm font-semibold ${
-                                  isAccepted
-                                    ? 'text-green-700'
-                                    : 'text-indigo-600 hover:text-indigo-800'
-                                }`}
-                              >
-                                {isAccepted
-                                  ? '✓ Accepted Solution'
-                                  : 'Mark as Accepted Answer'}
-                              </button>
+                            <div className="mt-5 border-t border-[#39364f] pt-4">
+                              {isQuestionOwner && (
+                                <button
+                                  type="button"
+                                  onClick={() => handleAcceptAnswer(question.id, answer.id)}
+                                  className={`rounded-lg px-3 py-2 text-sm font-semibold transition ${
+                                    isAccepted
+                                      ? 'bg-emerald-500/10 text-emerald-300 hover:bg-emerald-500/20'
+                                      : 'text-violet-300 hover:bg-violet-500/10'
+                                  }`}
+                                >
+                                  {isAccepted ? '✓ Accepted Solution · Undo' : 'Mark as Accepted Answer'}
+                                </button>
+                              )}
                             </div>
                           </div>
                         )
                       })}
                     </div>
                   ) : (
-                    <p className="rounded-xl bg-slate-50 p-4 text-sm text-slate-500">
+                    <p className="rounded-lg border border-dashed border-[#39364f] bg-[#151522] p-4 text-sm text-[#aaa5c5]">
                       No answers yet. Be the first to help!
                     </p>
                   )}
                 </div>
 
                 {/* Answer Composer */}
-                <div className="mt-6 rounded-xl border border-slate-200 p-4">
-                  <h4 className="mb-4 font-semibold text-slate-900">
+                <div className="mt-6 rounded-lg border border-[#39364f] bg-[#151522] p-4">
+                  <h4 className="mb-4 font-semibold">
                     {question.answers.length > 0
-                      ? 'Add Another Answer'
-                      : 'Write the First Answer'}
+                      ? 'Add another answer'
+                      : 'Write the first answer'}
                   </h4>
 
                   <form
@@ -485,7 +484,7 @@ export default function DoubtCorner() {
                           [question.id]: e.target.value,
                         }))
                       }
-                      className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-indigo-500"
+                      className={`${inputStyle} resize-y text-sm`}
                     />
 
                     <input
@@ -498,19 +497,19 @@ export default function DoubtCorner() {
                           [question.id]: e.target.value,
                         }))
                       }
-                      className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-indigo-500"
+                      className={`${inputStyle} text-sm`}
                     />
 
                     <label
                       htmlFor={`answer-file-${question.id}`}
-                      className="flex cursor-pointer flex-wrap items-center gap-2 rounded-xl border border-dashed border-indigo-300 bg-indigo-50 p-4 text-sm text-indigo-700 hover:bg-indigo-100"
+                      className="flex cursor-pointer flex-wrap items-center gap-3 rounded-xl border border-dashed border-violet-500/40 bg-violet-500/5 p-4 text-sm text-violet-200 transition hover:bg-violet-500/10"
                     >
-                      <span className="text-xl">📎</span>
-                      <span className="font-semibold">
-                        Attach Image or PDF
-                      </span>
-                      <span className="text-xs text-slate-500">
-                        JPG, PNG, WEBP or PDF · Max 5 MB
+                      <span className="text-2xl">📎</span>
+                      <span>
+                        <span className="block font-semibold">Attach image or PDF</span>
+                        <span className="mt-1 block text-xs text-[#aaa5c5]">
+                          JPG, PNG, WEBP or PDF · Maximum 5 MB
+                        </span>
                       </span>
                     </label>
 
@@ -528,63 +527,56 @@ export default function DoubtCorner() {
                     />
 
                     {fileInputs[question.id] && (
-                      <div className="flex items-center justify-between rounded-lg bg-slate-50 p-3 text-sm">
-                        <span className="truncate text-slate-700">
+                      <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg bg-[#11111b] p-3 text-sm">
+                        <span className="min-w-0 break-all text-[#d5d0e8]">
                           📎 {fileInputs[question.id].name}
                         </span>
-
                         <button
                           type="button"
                           onClick={() => {
-                            setFileInputs((prev) => ({
-                              ...prev,
-                              [question.id]: null,
-                            }))
-
-                            const input = document.getElementById(
-                              `answer-file-${question.id}`
-                            )
+                            setFileInputs((prev) => ({ ...prev, [question.id]: null }))
+                            const input = document.getElementById(`answer-file-${question.id}`)
                             if (input) input.value = ''
                           }}
-                          className="ml-3 text-red-600"
+                          className="text-red-400 hover:text-red-300"
                         >
                           Remove
                         </button>
                       </div>
                     )}
 
-                    <div className="flex justify-end">
+                    <div className="flex justify-end pt-2">
                       <button
                         type="submit"
                         disabled={uploading[question.id]}
-                        className="rounded-xl bg-indigo-600 px-6 py-3 font-semibold text-white hover:bg-indigo-700 disabled:opacity-50"
+                        className={primaryButton}
                       >
                         {uploading[question.id]
                           ? 'Adding...'
                           : question.answers.length > 0
-                            ? 'Add More'
+                            ? 'Add Answer'
                             : 'Post Answer'}
                       </button>
                     </div>
                   </form>
                 </div>
-              </div>
+              </article>
             ))
           ) : (
-            <div className="rounded-2xl border border-dashed border-slate-300 bg-white py-16 text-center">
+            <div className="rounded-2xl border border-dashed border-[#39364f] bg-[#1c1c2b] px-5 py-20 text-center">
               <div className="mb-4 text-5xl">💡</div>
-              <h2 className="text-xl font-bold text-slate-800">
-                {questions.length === 0
-                  ? 'No questions yet'
-                  : 'No matching questions'}
+              <h2 className="text-xl font-bold">
+                {questions.length === 0 ? 'No questions yet' : 'No matching questions'}
               </h2>
-              <p className="mt-2 text-slate-500">
-                Be the first to ask a question!
+              <p className="mt-2 text-sm text-[#aaa5c5]">
+                {questions.length === 0
+                  ? 'Be the first to ask a question and start a discussion.'
+                  : 'Try another search term.'}
               </p>
             </div>
           )}
-        </div>
+        </section>
       </div>
-    </div>
+    </main>
   )
 }

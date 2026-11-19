@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation, Outlet, NavLink } from "react-router-dom";
 import { auth, db } from "../firebase/config";
 import { onAuthStateChanged } from "firebase/auth";
 import {
@@ -19,6 +19,7 @@ const defaultTasks = [
 
 function Dashboard() {
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -30,7 +31,6 @@ function Dashboard() {
 
   const [newTask, setNewTask] = useState("");
 
-  // Load profile and dashboard data
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (!user) {
@@ -81,10 +81,8 @@ function Dashboard() {
     return () => unsubscribe();
   }, [navigate]);
 
-  // Save dashboard data
   const saveDashboardData = async (updatedData) => {
     const user = auth.currentUser;
-
     if (!user) return;
 
     try {
@@ -110,10 +108,8 @@ function Dashboard() {
     }
   };
 
-  // Add a new task
   const addTask = (e) => {
     e.preventDefault();
-
     if (!newTask.trim()) return;
 
     const updatedData = {
@@ -133,14 +129,11 @@ function Dashboard() {
     setNewTask("");
   };
 
-  // Toggle task completion
   const toggleTask = (id) => {
     const updatedData = {
       ...dashboardData,
       tasks: dashboardData.tasks.map((task) =>
-        task.id === id
-          ? { ...task, done: !task.done }
-          : task
+        task.id === id ? { ...task, done: !task.done } : task
       )
     };
 
@@ -148,7 +141,6 @@ function Dashboard() {
     saveDashboardData(updatedData);
   };
 
-  // Add study time
   const addStudyTime = () => {
     const updatedData = {
       ...dashboardData,
@@ -192,18 +184,24 @@ function Dashboard() {
 
         <p className="sidebar-label">MENU</p>
 
-       <a href="#overview" className="active">▪ Dashboard</a>
-<a href="#subjects">◈ My Subjects</a>
-<a href="#planner">☑ Study Planner</a>
-<a href="#tracker">◷ Study Tracker</a>
+        <a href="#overview" className="active">▪ Dashboard</a>
+        <a href="#subjects">◈ My Subjects</a>
+        <a href="#planner">☑ Study Planner</a>
+        <a href="#tracker">◷ Study Tracker</a>
+        <NavLink to="/dashboard/resources" className={({ isActive }) => isActive ? "active" : ""}>
+          📚 Resource Library
+        </NavLink>
+        <NavLink to="/dashboard/doubts" className={({ isActive }) => isActive ? "active" : ""}>
+          💬 Doubt Corner
+        </NavLink>
 
-<button
-  type="button"
-  className="sidebar-focus-btn"
-  onClick={() => navigate("/focus")}
->
-  🎯 Focus Room
-</button>
+        <button
+          type="button"
+          className="sidebar-focus-btn"
+          onClick={() => navigate("/focus")}
+        >
+          🎯 Focus Room
+        </button>
 
         <div className="sidebar-bottom">
           <a href="/profile">⚙ Profile</a>
@@ -211,14 +209,11 @@ function Dashboard() {
       </aside>
 
       <main className="dashboard-main">
+        {location.pathname === "/dashboard" && (
         <header className="dashboard-header">
           <div>
             <p className="dashboard-date">{today}</p>
-
-            <h1>
-              Welcome back, {profile.fullName || "Student"}!
-            </h1>
-
+            <h1>Welcome back, {profile.fullName || "Student"}!</h1>
             <p className="dashboard-subtitle">
               Ready to make today productive?
             </p>
@@ -228,7 +223,10 @@ function Dashboard() {
             {(profile.fullName || "S").charAt(0).toUpperCase()}
           </div>
         </header>
+        )}
 
+        {location.pathname === "/dashboard" ? (
+          <>
         <section className="stats-grid" id="overview">
           <div className="stat-card">
             <span>📚</span>
@@ -239,9 +237,7 @@ function Dashboard() {
           <div className="stat-card">
             <span>✅</span>
             <p>Completed Tasks</p>
-            <h2>
-              {completedTasks}/{dashboardData.tasks.length}
-            </h2>
+            <h2>{completedTasks}/{dashboardData.tasks.length}</h2>
           </div>
 
           <div className="stat-card">
@@ -333,15 +329,18 @@ function Dashboard() {
                 {Math.floor(dashboardData.studyMinutes / 60)}h{" "}
                 {dashboardData.studyMinutes % 60}m
               </h3>
-
               <p>Study time completed</p>
             </div>
 
-            <button onClick={addStudyTime}>
+            <button type="button" onClick={addStudyTime}>
               + Add 30 Minutes
             </button>
           </div>
         </section>
+          </>
+        ) : (
+          <Outlet />
+        )}
       </main>
     </div>
   );

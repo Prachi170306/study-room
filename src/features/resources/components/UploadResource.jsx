@@ -5,8 +5,9 @@ export default function UploadResource({ onUpload, onClose }) {
   const [description, setDescription] = useState('')
   const [file, setFile] = useState(null)
   const [error, setError] = useState('')
+  const [uploading, setUploading] = useState(false)
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
 
@@ -24,7 +25,7 @@ export default function UploadResource({ onUpload, onClose }) {
       'application/pdf',
       'image/jpeg',
       'image/png',
-      'image/webp'
+      'image/webp',
     ]
 
     if (!allowedTypes.includes(file.type)) {
@@ -36,33 +37,34 @@ export default function UploadResource({ onUpload, onClose }) {
       setError('File size must be below 10 MB.')
       return
     }
-    const fileUrl = URL.createObjectURL(file)
-    onUpload({
-      id: Date.now(),
-      title: title.trim(),
-      description: description.trim(),
-      file,
-      fileUrl,
-      fileName: file.name,
-      fileType: file.type,
-      createdAt: new Date().toISOString()
-    })
 
-    onClose()
+    setUploading(true)
+
+    try {
+      await onUpload({
+        title: title.trim(),
+        description: description.trim(),
+        file,
+      })
+    } catch (err) {
+      setError(err.message || 'Upload failed. Please try again.')
+    } finally {
+      setUploading(false)
+    }
   }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
       <form
         onSubmit={handleSubmit}
-        className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl"
+        className="w-full max-w-lg rounded-2xl bg-[#1c1c2b] p-6 shadow-xl"
       >
         <div className="mb-6 flex items-center justify-between">
-          <h2 className="text-xl font-bold text-slate-900">
+          <h2 className="text-xl font-bold text-white">
             Upload Resource
           </h2>
 
-          <button type="button" onClick={onClose}>
+          <button type="button" onClick={onClose} disabled={uploading}>
             ✕
           </button>
         </div>
@@ -75,6 +77,7 @@ export default function UploadResource({ onUpload, onClose }) {
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="Enter resource title"
+          disabled={uploading}
           className="mb-4 w-full rounded-lg border p-3"
         />
 
@@ -86,6 +89,7 @@ export default function UploadResource({ onUpload, onClose }) {
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           placeholder="Describe your resource"
+          disabled={uploading}
           className="mb-4 w-full rounded-lg border p-3"
           rows="3"
         />
@@ -97,7 +101,8 @@ export default function UploadResource({ onUpload, onClose }) {
         <input
           type="file"
           accept=".pdf,.jpg,.jpeg,.png,.webp"
-          onChange={(e) => setFile(e.target.files[0])}
+          onChange={(e) => setFile(e.target.files?.[0] || null)}
+          disabled={uploading}
           className="mb-4 w-full rounded-lg border p-3"
         />
 
@@ -108,16 +113,17 @@ export default function UploadResource({ onUpload, onClose }) {
         )}
 
         {error && (
-          <p className="mb-4 text-sm text-red-600">
+          <p className="mb-4 text-sm text-red-400">
             {error}
           </p>
         )}
 
         <button
           type="submit"
-          className="w-full rounded-xl bg-indigo-600 py-3 font-semibold text-white hover:bg-indigo-700"
+          disabled={uploading}
+          className="w-full rounded-xl bg-violet-600 py-3 font-semibold text-white hover:bg-violet-700 disabled:cursor-not-allowed disabled:opacity-50"
         >
-          Upload Resource
+          {uploading ? 'Uploading...' : 'Upload Resource'}
         </button>
       </form>
     </div>

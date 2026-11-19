@@ -351,3 +351,83 @@
   transform: translateX(4px);
   box-shadow: 0 5px 15px rgba(108, 99, 255, 0.25);
 }
+/* Resource Library and Doubt Corner layout */
+
+
+/* Resource Library and Doubt Corner layout */
+
+.dashboard-main > div.w-full.text-white,
+.dashboard-main > main.w-full.text-white > div.w-full {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+}
+
+.dashboard-main > div.w-full.text-white > *,
+.dashboard-main > main.w-full.text-white > div.w-full > * {
+  margin-bottom: 0;
+}
+
+.dashboard-main > div.w-full.text-white h2,
+.dashboard-main > main.w-full.text-white h2 {
+  line-height: 1.4;
+}
+
+.dashboard-main > div.w-full.text-white .grid > div,
+.dashboard-main > main.w-full.text-white .grid > div {
+  padding: 22px;
+  min-width: 0;
+}
+
+.dashboard-main > div.w-full.text-white input,
+.dashboard-main > main.w-full.text-white input,
+.dashboard-main > main.w-full.text-white textarea {
+  min-width: 0;
+  padding: 12px 15px;
+  line-height: 1.5;
+}
+
+.dashboard-main > main.w-full.text-white textarea {
+  min-height: 120px;
+}
+
+.dashboard-main > main.w-full.text-white form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.dashboard-main > main.w-full.text-white form > div {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.dashboard-main > main.w-full.text-white section {
+  min-width: 0;
+}
+
+.dashboard-main > main.w-full.text-white article {
+  padding: 22px;
+  overflow-wrap: anywhere;
+}
+
+.dashboard-main > main.w-full.text-white .space-y-6 > * + * {
+  margin-top: 20px;
+}
+
+.dashboard-main > div.w-full.text-white button,
+.dashboard-main > main.w-full.text-white button {
+  line-height: 1.5;
+}
+
+@media (max-width: 600px) {
+  .dashboard-main {
+    padding: 20px;
+  }
+
+  .dashboard-main > div.w-full.text-white,
+  .dashboard-main > main.w-full.text-white > div.w-full {
+    gap: 18px;
+  }
+}

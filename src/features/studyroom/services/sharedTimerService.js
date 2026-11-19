@@ -1,6 +1,6 @@
 import {doc,getDoc,updateDoc,onSnapshot,serverTimestamp,runTransaction } from "firebase/firestore";
 
-import { db } from "../../../firebase/firebase";
+import { db } from "../../../firebase";
 
 // Timer durations (in seconds)
 const FOCUS_TIME = 10;
