@@ -21,10 +21,10 @@ export default function ChatWindow({
 
   if (!conversation) {
     return (
-      <div className="flex-1 flex items-center justify-center text-center">
+      <div className="flex-1 flex items-center justify-center text-center bg-[#11111b]">
         <div>
           <div className="text-6xl mb-4">💬</div>
-          <h2 className="text-xl font-bold text-slate-700">
+          <h2 className="text-xl font-bold text-white">
             Welcome to StudySphere Chat
           </h2>
           <p className="text-sm text-slate-400 mt-2">
@@ -36,22 +36,23 @@ export default function ChatWindow({
   }
 
   return (
-    <div className="flex-1 min-w-0 flex flex-col bg-slate-50">
+    <div className="flex-1 min-w-0 flex flex-col bg-[#11111b]">
 
-      <header className="bg-white px-4 md:px-6 py-4 border-b border-slate-200 flex items-center gap-3">
+      <header className="bg-[#1c1c2b] px-4 md:px-6 py-4 border-b border-white/10 flex items-center gap-3">
+
         <button
           onClick={onBack}
-          className="md:hidden text-indigo-600 text-xl"
+          className="md:hidden text-indigo-400 text-xl"
         >
           ←
         </button>
 
-        <div className="w-11 h-11 rounded-full bg-indigo-100 flex items-center justify-center text-xl">
+        <div className="w-11 h-11 rounded-full bg-indigo-500/20 text-indigo-300 flex items-center justify-center text-xl">
           {conversation.type === 'group' ? '👥' : '👤'}
         </div>
 
         <div className="flex-1 min-w-0">
-          <h3 className="font-bold text-slate-800 truncate">
+          <h3 className="font-bold text-white truncate">
             {conversation.name}
           </h3>
 
@@ -64,7 +65,7 @@ export default function ChatWindow({
 
         <button
           onClick={() => setShowInfo(true)}
-          className="text-slate-400 text-xl"
+          className="text-slate-400 hover:text-indigo-400 text-xl transition"
           title="Conversation information"
         >
           ⓘ

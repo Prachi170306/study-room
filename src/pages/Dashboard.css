@@ -331,6 +331,8 @@
   }
 }
 
+/* Focus button */
+
 .sidebar-focus-btn {
   display: block;
   width: 100%;
@@ -351,7 +353,9 @@
   transform: translateX(4px);
   box-shadow: 0 5px 15px rgba(108, 99, 255, 0.25);
 }
+
 /* Header action buttons */
+
 .dashboard-header-actions {
   display: flex;
   align-items: center;
@@ -393,6 +397,7 @@
 }
 
 /* Notification overlay */
+
 .notification-overlay {
   position: fixed;
   inset: 0;
@@ -403,6 +408,7 @@
 }
 
 /* Slide-out notification drawer */
+
 .notification-drawer {
   position: fixed;
   top: 0;
@@ -423,12 +429,14 @@
   from {
     transform: translateX(100%);
   }
+
   to {
     transform: translateX(0);
   }
 }
 
 /* Drawer header */
+
 .notification-drawer-header {
   display: flex;
   align-items: flex-start;
@@ -463,6 +471,7 @@
 }
 
 /* Notification items */
+
 .notification-list {
   display: flex;
   flex-direction: column;
@@ -504,7 +513,8 @@
   font-size: 11px;
 }
 
-/* Mobile adjustments */
+/* Mobile notification adjustments */
+
 @media (max-width: 600px) {
   .notification-drawer {
     width: 100%;
@@ -515,7 +525,9 @@
     gap: 10px;
   }
 }
+
 /* Mark all as read button */
+
 .mark-all-read {
   background: transparent;
   border: none;
@@ -532,6 +544,7 @@
 }
 
 /* Make notification items clickable */
+
 .notification-item {
   position: relative;
   width: 100%;
@@ -544,12 +557,14 @@
 }
 
 /* Unread notification */
+
 .notification-item.unread {
   background: rgba(147, 51, 234, 0.13);
   border-color: rgba(147, 51, 234, 0.18);
 }
 
 /* Read notification */
+
 .notification-item.read {
   background: transparent;
   opacity: 0.65;
@@ -562,12 +577,14 @@
 }
 
 /* Notification text */
+
 .notification-content {
   flex: 1;
   min-width: 0;
 }
 
 /* Purple dot for unread notifications */
+
 .unread-dot {
   width: 9px;
   height: 9px;
@@ -575,4 +592,304 @@
   border-radius: 50%;
   flex-shrink: 0;
   margin-top: 6px;
+}
+
+/* =================================
+   DASHBOARD UI IMPROVEMENTS
+================================= */
+
+/* Main dashboard layout */
+
+.dashboard-container {
+  width: 100%;
+  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+}
+
+/* Compact sidebar */
+
+.dashboard-sidebar {
+  width: 220px;
+  min-width: 220px;
+  height: 100vh;
+  padding: 22px 14px;
+  gap: 5px;
+  transition: width 0.25s ease, min-width 0.25s ease;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+/* Collapsed sidebar */
+
+.dashboard-sidebar.sidebar-closed {
+  width: 72px;
+  min-width: 72px;
+  padding: 18px 9px;
+  align-items: center;
+}
+
+/* Sidebar heading */
+
+.dashboard-sidebar h2 {
+  font-size: 22px;
+  margin: 12px 0 30px;
+  white-space: nowrap;
+}
+
+/* Sidebar toggle button */
+
+.sidebar-toggle {
+  width: 100%;
+  height: 36px;
+  margin-bottom: 14px;
+  background: transparent;
+  color: white;
+  border: 1px solid #353047;
+  border-radius: 7px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.sidebar-toggle:hover {
+  background: #302640;
+  border-color: #a855f7;
+}
+
+.sidebar-closed .sidebar-toggle {
+  width: 46px;
+  height: 36px;
+}
+
+/* Sidebar menu label */
+
+.sidebar-label {
+  font-size: 10px;
+  margin: 8px 0 12px;
+}
+
+.sidebar-closed .sidebar-label {
+  display: none;
+}
+
+/* Sidebar links */
+
+.dashboard-sidebar a {
+  width: 100%;
+  min-height: 42px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  margin-bottom: 5px;
+  border-radius: 8px;
+  font-size: 13px;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.dashboard-sidebar a span {
+  min-width: 20px;
+  text-align: center;
+  font-size: 16px;
+}
+
+.sidebar-closed a {
+  width: 46px;
+  height: 42px;
+  min-height: 42px;
+  justify-content: center;
+  padding: 8px;
+  margin-bottom: 7px;
+}
+
+.sidebar-closed a span {
+  font-size: 17px;
+}
+
+/* Main content */
+
+.dashboard-main {
+  flex: 1;
+  min-width: 0;
+  height: 100vh;
+  padding: 26px 32px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* Smaller header */
+
+.dashboard-header {
+  margin-bottom: 26px;
+  gap: 15px;
+}
+
+.dashboard-header h1 {
+  font-size: 25px;
+}
+
+.dashboard-date,
+.dashboard-subtitle {
+  font-size: 13px;
+}
+
+/* Header buttons */
+
+.dashboard-header-actions {
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.notification-bell,
+.profile-avatar {
+  width: 42px;
+  height: 42px;
+  min-width: 42px;
+  font-size: 18px;
+}
+
+/* Statistics cards */
+
+.stats-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 25px;
+}
+
+.stat-card {
+  padding: 17px;
+  border-radius: 11px;
+}
+
+.stat-card span {
+  font-size: 22px;
+}
+
+.stat-card p {
+  font-size: 12px;
+  margin-top: 10px;
+}
+
+.stat-card h2 {
+  font-size: 22px;
+}
+
+/* Subject cards */
+
+.subjects-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.subject-card {
+  padding: 17px;
+}
+
+.subject-icon {
+  font-size: 22px;
+}
+
+.subject-card h3 {
+  font-size: 14px;
+}
+
+/* Dashboard sections */
+
+.dashboard-section {
+  margin-bottom: 22px;
+}
+
+.section-heading {
+  margin-bottom: 15px;
+}
+
+.section-heading h2 {
+  font-size: 19px;
+}
+
+/* Study tracker */
+
+.tracker-card {
+  padding: 20px;
+  border-radius: 11px;
+}
+
+.tracker-card h3 {
+  font-size: 25px;
+}
+
+.tracker-card button {
+  padding: 10px 16px;
+  font-size: 13px;
+}
+
+/* Notification drawer */
+
+.notification-drawer {
+  overflow-y: auto;
+  max-height: 100vh;
+}
+
+/* Smaller screens */
+
+@media (max-width: 900px) {
+  .dashboard-main {
+    padding: 22px 18px;
+  }
+
+  .subjects-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Mobile layout */
+
+@media (max-width: 600px) {
+  .dashboard-sidebar {
+    width: 64px;
+    min-width: 64px;
+    padding: 12px 7px;
+  }
+
+  .dashboard-sidebar.sidebar-open {
+    width: 180px;
+    min-width: 180px;
+  }
+
+  .dashboard-sidebar h2 {
+    font-size: 18px;
+  }
+
+  .dashboard-sidebar a {
+    font-size: 12px;
+  }
+
+  .dashboard-main {
+    padding: 18px 12px;
+  }
+
+  .dashboard-header h1 {
+    font-size: 19px;
+  }
+
+  .dashboard-header {
+    align-items: flex-start;
+  }
+
+  .stats-grid,
+  .subjects-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .stat-card {
+    padding: 14px;
+  }
+
+  .tracker-card {
+    flex-wrap: wrap;
+    gap: 14px;
+  }
 }

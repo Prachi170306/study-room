@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import useConversations from "../hooks/useConversations";
 
@@ -29,17 +30,18 @@ export default function ChatPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto">
-      <div className="mb-5">
-        <h1 className="text-2xl md:text-3xl font-bold text-slate-800">
+    <div className="w-full max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
+      <div className="mb-6">
+        <h1 className="text-2xl md:text-3xl font-bold text-white">
           StudySphere Chat 💬
         </h1>
-        <p className="text-sm text-slate-500 mt-1">
+
+        <p className="text-sm text-slate-400 mt-1">
           Connect, discuss and learn together.
         </p>
       </div>
 
-      <div className="h-[calc(100vh-170px)] min-h-125 bg-white rounded-2xl overflow-hidden border border-slate-200 flex shadow-sm">
+      <div className="h-[calc(100vh-190px)] min-h-[500px] bg-[#1c1c2b] rounded-2xl overflow-hidden border border-white/10 flex shadow-xl">
         <div
           className={`w-full md:w-80 shrink-0 ${
             showChatList ? "flex" : "hidden md:flex"
@@ -79,13 +81,13 @@ export default function ChatPage() {
       )}
 
       {modal === "group" && (
-  <CreateGroupModal
-    isOpen={true}
-    students={students}
-    onClose={() => setModal(null)}
-    onCreate={createGroup}
-  />
-)}
+        <CreateGroupModal
+          isOpen={true}
+          students={students}
+          onClose={() => setModal(null)}
+          onCreate={createGroup}
+        />
+      )}
     </div>
   );
 }
