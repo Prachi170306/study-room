@@ -1,52 +1,64 @@
 
-const demoTasks = [
-  {
-    id: 't1',
-    title: 'Complete Data Structures assignment',
-    description: 'Solve the remaining questions on linked lists and trees.',
-    subject: 'Data Structures',
-    priority: 'high',
-    status: 'in-progress',
-    dueDate: '2026-11-15',
-  },
-  {
-    id: 't2',
-    title: 'Prepare React presentation',
-    description: 'Prepare slides covering React hooks and component lifecycle.',
-    subject: 'Web Development',
-    priority: 'medium',
-    status: 'todo',
-    dueDate: '2026-11-18',
-  },
-  {
-    id: 't3',
-    title: 'Revise Operating Systems',
-    description: 'Review process scheduling, deadlocks and memory management.',
-    subject: 'Operating Systems',
-    priority: 'high',
-    status: 'todo',
-    dueDate: '2026-11-14',
-  },
-  {
-    id: 't4',
-    title: 'Complete JavaScript practice',
-    description: 'Practice arrays, objects and asynchronous JavaScript.',
-    subject: 'JavaScript',
-    priority: 'low',
-    status: 'completed',
-    dueDate: '2026-11-12',
-  },
-  {
-    id: 't5',
-    title: 'Read DBMS notes',
-    description: 'Revise normalization and SQL queries.',
-    subject: 'DBMS',
-    priority: 'medium',
-    status: 'in-progress',
-    dueDate: '2026-11-20',
-  },
-]
+import {
+  collection,
+  addDoc,
+  updateDoc,
+  deleteDoc,
+  doc,
+  onSnapshot,
+  serverTimestamp,
+} from 'firebase/firestore'
 
-export function getDemoTasks() {
-  return demoTasks
+import { db } from '../../../firebase'
+
+// Listen for real-time task updates
+export function subscribeToTasks(userId, callback, onError) {
+  const tasksRef = collection(db, 'users', userId, 'tasks')
+
+  return onSnapshot(
+    tasksRef,
+    (snapshot) => {
+      const tasks = snapshot.docs.map((item) => ({
+        id: item.id,
+        ...item.data(),
+      }))
+
+      callback(tasks)
+    },
+    onError
+  )
+}
+
+// Add a new task
+export async function addTaskToFirestore(userId, taskData) {
+  const tasksRef = collection(db, 'users', userId, 'tasks')
+
+  const docRef = await addDoc(tasksRef, {
+    ...taskData,
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+  })
+
+  return docRef.id
+}
+
+// Update an existing task
+export async function updateTaskInFirestore(
+  userId,
+  taskId,
+  updatedData
+) {
+  const taskRef = doc(db, 'users', userId, 'tasks', taskId)
+
+  await updateDoc(taskRef, {
+    ...updatedData,
+    updatedAt: serverTimestamp(),
+  })
+}
+
+// Delete a task
+export async function deleteTaskFromFirestore(userId, taskId) {
+  const taskRef = doc(db, 'users', userId, 'tasks', taskId)
+
+  await deleteDoc(taskRef)
 }

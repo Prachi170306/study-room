@@ -1,41 +1,61 @@
-
 import {
   BrowserRouter,
   Routes,
   Route,
   Navigate,
-} from 'react-router-dom'
+} from "react-router-dom";
 
-import { ChatPage } from './features/chat'
-import { TasksPage } from './features/tasks'
-import { NotificationsPage } from './features/notifications'
-import DoubtCorner from './features/doubts/pages/DoubtCorner'
-import ResourceLibrary from './features/resources/pages/ResourceLibrary'
-import { FocusRoom } from './features/focus'
-import { RoomPage, StudyRoom } from './features/studyroom'
+// Authentication and profile pages
+import Login from "./pages/Login";
+import Signup from "./pages/Signup";
+import Onboarding from "./pages/Onboarding";
+import Dashboard from "./pages/Dashboard";
+import Profile from "./pages/Profile";
 
-export default function App() {
+// Team features
+import { ChatPage } from "./features/chat";
+import { TasksPage } from "./features/tasks";
+import { NotificationsPage } from "./features/notifications";
+import { FocusRoom } from "./features/focus";
+import { RoomPage, StudyRoom } from "./features/studyroom";
+
+function App() {
   return (
     <BrowserRouter>
       <Routes>
+        {/* Default route */}
+        <Route
+          path="/"
+          element={<Navigate to="/login" replace />}
+        />
+
+        {/* Authentication */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
+        <Route path="/onboarding" element={<Onboarding />} />
+
+        {/* Dashboard and profile */}
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/profile" element={<Profile />} />
+
+        {/* Team features */}
         <Route path="/chat" element={<ChatPage />} />
         <Route path="/tasks" element={<TasksPage />} />
         <Route path="/notifications" element={<NotificationsPage />} />
-
-        {/* Member 4: Resource Library and Doubt Corner */}
-        <Route path="/resources" element={<ResourceLibrary />} />
-        <Route path="/doubts" element={<DoubtCorner />} />
-
-        {/* Member 5: Focus Room */}
         <Route path="/focus" element={<FocusRoom />} />
 
-        {/* Member 2: Study Rooms */}
+        {/* Study Rooms */}
         <Route path="/studyroom" element={<StudyRoom />} />
         <Route path="/study-room/:roomId" element={<RoomPage />} />
 
-        <Route path="/" element={<Navigate to="/chat" replace />} />
-        <Route path="*" element={<Navigate to="/chat" replace />} />
+        {/* Unknown routes */}
+        <Route
+          path="*"
+          element={<Navigate to="/login" replace />}
+        />
       </Routes>
     </BrowserRouter>
-  )
+  );
 }
+
+export default App;
