@@ -22,6 +22,7 @@ export const db = getFirestore(app);
 export const rtdb = getDatabase(app);
 export const storage = getStorage(app);
 
+
 export const loginAnonymously = () => signInAnonymously(auth);
 
 export default app;

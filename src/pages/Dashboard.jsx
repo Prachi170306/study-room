@@ -1,32 +1,39 @@
-
 import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation, Outlet, NavLink } from "react-router-dom";
 import { auth, db } from "../firebase/config";
 import { onAuthStateChanged } from "firebase/auth";
-import {
-  doc,
-  getDoc,
-  setDoc,
-  serverTimestamp
-} from "firebase/firestore";
+import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
 import "./Dashboard.css";
+import useNotifications from "../features/notifications/hooks/useNotifications";
 
 const defaultTasks = [
   { id: 1, title: "Revise Data Structures", done: false },
   { id: 2, title: "Practice DBMS queries", done: false },
-  { id: 3, title: "Study Operating Systems", done: true }
+  { id: 3, title: "Study Operating Systems", done: true },
 ];
 
 function Dashboard() {
   const navigate = useNavigate();
   const location = useLocation();
+  const {
+    notifications,
+    stats,
+    loading: notificationsLoading,
+    error: notificationsError,
+    toggleReadStatus,
+    markAllAsRead,
+  } = useNotifications();
+
+  const unreadCount = stats.unread;
+
 
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [showNotifications, setShowNotifications] = useState(false);
 
   const [dashboardData, setDashboardData] = useState({
     tasks: defaultTasks,
-    studyMinutes: 0
+    studyMinutes: 0,
   });
 
   const [newTask, setNewTask] = useState("");
@@ -41,17 +48,11 @@ function Dashboard() {
 
       try {
         const profileRef = doc(db, "users", user.uid);
-        const dashboardRef = doc(
-          db,
-          "users",
-          user.uid,
-          "dashboard",
-          "data"
-        );
+        const dashboardRef = doc(db, "users", user.uid, "dashboard", "data");
 
         const [profileSnap, dashboardSnap] = await Promise.all([
           getDoc(profileRef),
-          getDoc(dashboardRef)
+          getDoc(dashboardRef),
         ]);
 
         if (!profileSnap.exists()) {
@@ -68,7 +69,7 @@ function Dashboard() {
             tasks: Array.isArray(savedData.tasks)
               ? savedData.tasks
               : defaultTasks,
-            studyMinutes: Number(savedData.studyMinutes) || 0
+            studyMinutes: Number(savedData.studyMinutes) || 0,
           });
         }
       } catch (error) {
@@ -86,21 +87,15 @@ function Dashboard() {
     if (!user) return;
 
     try {
-      const dashboardRef = doc(
-        db,
-        "users",
-        user.uid,
-        "dashboard",
-        "data"
-      );
+      const dashboardRef = doc(db, "users", user.uid, "dashboard", "data");
 
       await setDoc(
         dashboardRef,
         {
           ...updatedData,
-          updatedAt: serverTimestamp()
+          updatedAt: serverTimestamp(),
         },
-        { merge: true }
+        { merge: true },
       );
     } catch (error) {
       console.error("Error saving dashboard data:", error);
@@ -119,9 +114,9 @@ function Dashboard() {
         {
           id: Date.now(),
           title: newTask.trim(),
-          done: false
-        }
-      ]
+          done: false,
+        },
+      ],
     };
 
     setDashboardData(updatedData);
@@ -134,7 +129,7 @@ function Dashboard() {
       ...dashboardData,
       tasks: dashboardData.tasks.map((task) =>
         task.id === id ? { ...task, done: !task.done } : task
-      )
+      ),
     };
 
     setDashboardData(updatedData);
@@ -144,7 +139,7 @@ function Dashboard() {
   const addStudyTime = () => {
     const updatedData = {
       ...dashboardData,
-      studyMinutes: dashboardData.studyMinutes + 30
+      studyMinutes: dashboardData.studyMinutes + 30,
     };
 
     setDashboardData(updatedData);
@@ -166,21 +161,21 @@ function Dashboard() {
         .map((s) => s.trim())
         .filter(Boolean);
 
-  const completedTasks = dashboardData.tasks.filter(
-    (task) => task.done
-  ).length;
+  const completedTasks = dashboardData.tasks.filter((task) => task.done).length;
 
   const today = new Date().toLocaleDateString("en-IN", {
     weekday: "long",
     day: "numeric",
     month: "long",
-    year: "numeric"
+    year: "numeric",
   });
 
   return (
     <div className="dashboard-container">
       <aside className="dashboard-sidebar">
-        <h2>Study<span>Room.</span></h2>
+        <h2>
+          Study<span>Room.</span>
+        </h2>
 
         <p className="sidebar-label">MENU</p>
 
@@ -194,6 +189,13 @@ function Dashboard() {
         <NavLink to="/dashboard/doubts" className={({ isActive }) => isActive ? "active" : ""}>
           💬 Doubt Corner
         </NavLink>
+        <a href="#overview" className="active">
+          ▪ Dashboard
+        </a>
+        <a href="#subjects">◈ My Subjects</a>
+        <a href="#planner">☑ Study Planner</a>
+        <a href="#tracker">◷ Study Tracker</a>
+
 
         <button
           type="button"
@@ -214,15 +216,121 @@ function Dashboard() {
           <div>
             <p className="dashboard-date">{today}</p>
             <h1>Welcome back, {profile.fullName || "Student"}!</h1>
+
+
             <p className="dashboard-subtitle">
               Ready to make today productive?
             </p>
           </div>
 
-          <div className="profile-avatar">
-            {(profile.fullName || "S").charAt(0).toUpperCase()}
+          <div className="dashboard-header-actions">
+            <button
+              type="button"
+              className="notification-bell"
+              aria-label="Open notifications"
+              onClick={() => setShowNotifications(true)}
+            >
+              🔔
+              {unreadCount > 0 && (
+                <span className="notification-badge">{unreadCount}</span>
+              )}
+            </button>
+
+            <button
+              type="button"
+              className="profile-avatar"
+              aria-label="Open profile"
+              onClick={() => navigate("/profile")}
+            >
+              {(profile.fullName || "S").charAt(0).toUpperCase()}
+            </button>
           </div>
         </header>
+        )}
+
+        {showNotifications && (
+          <>
+            <button
+              type="button"
+              className="notification-overlay"
+              aria-label="Close notifications"
+              onClick={() => setShowNotifications(false)}
+            />
+
+            <aside className="notification-drawer">
+              <div className="notification-drawer-header">
+                <div>
+                  <h2>Notifications</h2>
+                  <p>You have {unreadCount} unread notifications</p>
+
+                  {unreadCount > 0 && (
+                    <button
+                      type="button"
+                      className="mark-all-read"
+                      onClick={markAllAsRead}
+                    >
+                      Mark all as read
+                    </button>
+                  )}
+                </div>
+
+                <button
+                  type="button"
+                  className="notification-close"
+                  onClick={() => setShowNotifications(false)}
+                  aria-label="Close notifications"
+                >
+                  ×
+                </button>
+              </div>
+
+              <div className="notification-list">
+                {notificationsLoading ? (
+                  <p>Loading notifications...</p>
+                ) : notificationsError ? (
+                  <p>Unable to load notifications.</p>
+                ) : notifications.length === 0 ? (
+                  <p>No notifications yet.</p>
+                ) : (
+                  notifications.map((notification) => (
+                    <button
+                      type="button"
+                      key={notification.id}
+                      className={`notification-item ${
+                        notification.read ? "read" : "unread"
+                      }`}
+                      onClick={() => toggleReadStatus(notification.id)}
+                    >
+                      <span className="notification-icon">
+                        {notification.type === "message"
+                          ? "💬"
+                          : notification.type === "task"
+                            ? "✅"
+                            : notification.type === "group"
+                              ? "👥"
+                              : "🔔"}
+                      </span>
+
+                      <div className="notification-content">
+                        <h3>{notification.title}</h3>
+                        <p>{notification.message}</p>
+                        <small>
+                          {notification.createdAt?.toDate
+                            ? notification.createdAt.toDate().toLocaleString()
+                            : "Recently"}
+                        </small>
+                      </div>
+
+                      {!notification.read && (
+                        <span className="unread-dot"></span>
+                      )}
+                    </button>
+                  ))
+                )}
+              </div>
+            </aside>
+          </>
+
         )}
 
         {location.pathname === "/dashboard" ? (
@@ -335,6 +443,8 @@ function Dashboard() {
             <button type="button" onClick={addStudyTime}>
               + Add 30 Minutes
             </button>
+            <button onClick={addStudyTime}>+ Add 30 Minutes</button>
+
           </div>
         </section>
           </>

@@ -1,9 +1,10 @@
+
 import {
   BrowserRouter,
   Routes,
   Route,
   Navigate,
-} from "react-router-dom";
+} from 'react-router-dom';
 
 // Authentication and profile pages
 import Login from "./pages/Login";
@@ -20,9 +21,10 @@ import { ChatPage } from "./features/chat";
 import { TasksPage } from "./features/tasks";
 import { NotificationsPage } from "./features/notifications";
 import { FocusRoom } from "./features/focus";
+import { ProgressRoom } from "./features/progress";
 import { RoomPage, StudyRoom } from "./features/studyroom";
 
-function App() {
+export default function App() {
   return (
     <BrowserRouter>
       <Routes>
@@ -49,20 +51,20 @@ function App() {
         <Route path="/chat" element={<ChatPage />} />
         <Route path="/tasks" element={<TasksPage />} />
         <Route path="/notifications" element={<NotificationsPage />} />
+
+        {/* Focus Room */}
         <Route path="/focus" element={<FocusRoom />} />
+
+        {/* Progress Dashboard */}
+        <Route path="/progress" element={<ProgressRoom />} />
 
         {/* Study Rooms */}
         <Route path="/studyroom" element={<StudyRoom />} />
         <Route path="/study-room/:roomId" element={<RoomPage />} />
 
         {/* Unknown routes */}
-        <Route
-          path="*"
-          element={<Navigate to="/login" replace />}
-        />
+        <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </BrowserRouter>
   );
 }
-
-export default App;
