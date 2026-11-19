@@ -154,10 +154,6 @@
   font-size: 13px;
 }
 
-.task-count {
-  color: #c084fc;
-  font-size: 13px;
-}
 
 /* Subjects */
 
@@ -189,74 +185,6 @@
   font-size: 12px;
 }
 
-/* Tasks */
-
-.add-task-form {
-  display: flex;
-  gap: 12px;
-  margin-bottom: 18px;
-}
-
-.add-task-form input {
-  flex: 1;
-  min-width: 0;
-  padding: 13px;
-  border: 1px solid #403b50;
-  border-radius: 8px;
-  background: #1c1c2b;
-  color: white;
-  outline: none;
-}
-
-.add-task-form input:focus {
-  border-color: #a855f7;
-}
-
-.add-task-form button,
-.tracker-card button {
-  background: #9333ea;
-  color: white;
-  border: none;
-  padding: 12px 20px;
-  border-radius: 8px;
-  cursor: pointer;
-}
-
-.add-task-form button:hover,
-.tracker-card button:hover {
-  background: #7e22ce;
-}
-
-.task-list {
-  background: #1c1c2b;
-  border: 1px solid #353047;
-  border-radius: 12px;
-  padding: 10px 20px;
-}
-
-.task-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 15px 5px;
-  border-bottom: 1px solid #353047;
-  cursor: pointer;
-}
-
-.task-item:last-child {
-  border-bottom: none;
-}
-
-.task-item input {
-  accent-color: #a855f7;
-  width: 17px;
-  height: 17px;
-}
-
-.task-done {
-  color: #77738c;
-  text-decoration: line-through;
-}
 
 /* Tracker */
 

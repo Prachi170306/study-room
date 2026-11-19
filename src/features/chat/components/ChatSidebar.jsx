@@ -15,16 +15,16 @@ export default function ChatSidebar({
   )
 
   return (
-    <aside className="w-full md:w-80 shrink-0 bg-[#1c1c2b] border-r border-white/10 flex flex-col">
+    <aside className="w-full md:w-80 shrink-0 bg-slate-100 border-r border-slate-200 flex flex-col">
 
-      <div className="p-5 border-b border-white/10">
+      <div className="p-5 border-b border-slate-200">
 
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-2xl font-bold text-white">
+            <h2 className="text-2xl font-bold text-slate-900">
               Messages
             </h2>
-            <p className="text-sm text-slate-400 mt-1">
+            <p className="text-sm text-slate-600 mt-1">
               Your study conversations
             </p>
           </div>
@@ -35,7 +35,7 @@ export default function ChatSidebar({
           value={search}
           onChange={e => setSearch(e.target.value)}
           placeholder="🔍 Search conversations..."
-          className="w-full mt-5 bg-[#11111b] border border-white/10 text-white placeholder-slate-500 rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-indigo-500"
+          className="w-full mt-5 bg-white border border-slate-300 text-slate-900 placeholder-slate-400 rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-indigo-500"
         />
 
         <div className="flex gap-2 mt-3">
@@ -48,7 +48,7 @@ export default function ChatSidebar({
 
           <button
             onClick={onNewGroup}
-            className="flex-1 bg-indigo-500/15 text-indigo-300 border border-indigo-500/20 rounded-xl py-2.5 text-sm font-semibold hover:bg-indigo-500/25 transition"
+            className="flex-1 bg-indigo-100 text-indigo-700 border border-indigo-200 rounded-xl py-2.5 text-sm font-semibold hover:bg-indigo-200 transition"
           >
             + Create Group
           </button>

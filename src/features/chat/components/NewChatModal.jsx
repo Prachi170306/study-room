@@ -23,6 +23,11 @@ export default function NewChatModal({
     onClose()
   }
 
+  function handleClose() {
+    setSelectedStudentId('')
+    onClose()
+  }
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
       <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
@@ -38,12 +43,18 @@ export default function NewChatModal({
         <select
           value={selectedStudentId}
           onChange={event => setSelectedStudentId(event.target.value)}
-          className="w-full rounded-xl border border-slate-300 bg-white p-3 outline-none focus:ring-2 focus:ring-indigo-400"
+          className="w-full rounded-xl border border-slate-300 bg-white text-slate-900 p-3 outline-none focus:ring-2 focus:ring-indigo-500"
         >
-          <option value="">Select a student</option>
+          <option value="" className="bg-white text-slate-900">
+            Select a student
+          </option>
 
           {students.map(student => (
-            <option key={student.id} value={student.id}>
+            <option
+              key={student.id}
+              value={student.id}
+              className="bg-white text-slate-900"
+            >
               {student.name}
             </option>
           ))}
@@ -57,7 +68,7 @@ export default function NewChatModal({
 
         <div className="mt-6 flex justify-end gap-3">
           <button
-            onClick={onClose}
+            onClick={handleClose}
             className="rounded-xl border border-slate-300 px-4 py-2 text-slate-700 hover:bg-slate-100"
           >
             Cancel

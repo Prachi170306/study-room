@@ -9,7 +9,7 @@ export default function ChatList({
   return (
     <div className="flex-1 overflow-y-auto">
 
-      <p className="px-5 py-4 text-xs font-bold uppercase tracking-wider text-slate-500">
+      <p className="px-5 py-4 text-xs font-bold uppercase tracking-wider text-slate-600">
         All conversations ({conversations.length})
       </p>
 

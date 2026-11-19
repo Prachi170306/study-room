@@ -12,12 +12,6 @@ import {
 import "./Dashboard.css";
 import useNotifications from "../features/notifications/hooks/useNotifications";
 
-const defaultTasks = [
-  { id: 1, title: "Revise Data Structures", done: false },
-  { id: 2, title: "Practice DBMS queries", done: false },
-  { id: 3, title: "Study Operating Systems", done: true },
-];
-
 function Dashboard() {
   const navigate = useNavigate();
 
@@ -36,7 +30,6 @@ function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [showNotifications, setShowNotifications] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [newTask, setNewTask] = useState("");
 
   const [activeSection, setActiveSection] = useState(() => {
     const section = window.location.hash.replace("#", "");
@@ -45,10 +38,7 @@ function Dashboard() {
       : "overview";
   });
 
-  const [dashboardData, setDashboardData] = useState({
-    tasks: defaultTasks,
-    studyMinutes: 0,
-  });
+  const [studyMinutes, setStudyMinutes] = useState(0);
 
   // Load profile and dashboard data
   useEffect(() => {
@@ -61,6 +51,7 @@ function Dashboard() {
 
       try {
         const profileRef = doc(db, "users", user.uid);
+
         const dashboardRef = doc(
           db,
           "users",
@@ -84,12 +75,7 @@ function Dashboard() {
         if (dashboardSnap.exists()) {
           const savedData = dashboardSnap.data();
 
-          setDashboardData({
-            tasks: Array.isArray(savedData.tasks)
-              ? savedData.tasks
-              : defaultTasks,
-            studyMinutes: Number(savedData.studyMinutes) || 0,
-          });
+          setStudyMinutes(Number(savedData.studyMinutes) || 0);
         }
       } catch (error) {
         console.error("Error loading dashboard:", error);
@@ -101,8 +87,8 @@ function Dashboard() {
     return () => unsubscribe();
   }, [navigate]);
 
-  // Save dashboard data
-  const saveDashboardData = async (updatedData) => {
+  // Save study time
+  const saveStudyTime = async (updatedMinutes) => {
     const user = auth.currentUser;
     if (!user) return;
 
@@ -118,64 +104,23 @@ function Dashboard() {
       await setDoc(
         dashboardRef,
         {
-          ...updatedData,
+          studyMinutes: updatedMinutes,
           updatedAt: serverTimestamp(),
         },
         { merge: true }
       );
     } catch (error) {
-      console.error("Error saving dashboard data:", error);
-      alert("Unable to save your changes. Please try again.");
+      console.error("Error saving study time:", error);
+      alert("Unable to save your study time. Please try again.");
     }
-  };
-
-  // Add a task
-  const addTask = (e) => {
-    e.preventDefault();
-
-    if (!newTask.trim()) return;
-
-    const updatedData = {
-      ...dashboardData,
-      tasks: [
-        ...dashboardData.tasks,
-        {
-          id: Date.now(),
-          title: newTask.trim(),
-          done: false,
-        },
-      ],
-    };
-
-    setDashboardData(updatedData);
-    saveDashboardData(updatedData);
-    setNewTask("");
-  };
-
-  // Toggle task completion
-  const toggleTask = (id) => {
-    const updatedData = {
-      ...dashboardData,
-      tasks: dashboardData.tasks.map((task) =>
-        task.id === id
-          ? { ...task, done: !task.done }
-          : task
-      ),
-    };
-
-    setDashboardData(updatedData);
-    saveDashboardData(updatedData);
   };
 
   // Add 30 minutes of study time
   const addStudyTime = () => {
-    const updatedData = {
-      ...dashboardData,
-      studyMinutes: dashboardData.studyMinutes + 30,
-    };
+    const updatedMinutes = studyMinutes + 30;
 
-    setDashboardData(updatedData);
-    saveDashboardData(updatedData);
+    setStudyMinutes(updatedMinutes);
+    saveStudyTime(updatedMinutes);
   };
 
   if (loading) {
@@ -193,10 +138,6 @@ function Dashboard() {
         .map((subject) => subject.trim())
         .filter(Boolean);
 
-  const completedTasks = dashboardData.tasks.filter(
-    (task) => task.done
-  ).length;
-
   const today = new Date().toLocaleDateString("en-IN", {
     weekday: "long",
     day: "numeric",
@@ -209,7 +150,7 @@ function Dashboard() {
     { name: "My Subjects", icon: "◈", href: "#subjects", section: "subjects" },
     { name: "Study Tracker", icon: "◷", href: "#tracker", section: "tracker" },
     { name: "Chat", icon: "💬", href: "/chat" },
-    { name: "Tasks / To-do List", icon: "☑", href: "/tasks" },
+    { name: "Tasks", icon: "☑", href: "/tasks" },
     { name: "Focus Room", icon: "🎯", href: "/focus" },
     { name: "Study Rooms", icon: "👥", href: "/studyroom" },
   ];
@@ -399,77 +340,28 @@ function Dashboard() {
 
         {/* Overview */}
         {activeSection === "overview" && (
-          <>
-            <section className="stats-grid">
-              <div className="stat-card">
-                <span>📚</span>
-                <p>Total Subjects</p>
-                <h2>{subjects.length}</h2>
-              </div>
+          <section className="stats-grid">
+            <div className="stat-card">
+              <span>📚</span>
+              <p>Total Subjects</p>
+              <h2>{subjects.length}</h2>
+            </div>
 
-              <div className="stat-card">
-                <span>✅</span>
-                <p>Completed Tasks</p>
-                <h2>
-                  {completedTasks}/{dashboardData.tasks.length}
-                </h2>
-              </div>
+            <div className="stat-card">
+              <span>⏱️</span>
+              <p>Study Time Today</p>
+              <h2>
+                {Math.floor(studyMinutes / 60)}h{" "}
+                {studyMinutes % 60}m
+              </h2>
+            </div>
 
-              <div className="stat-card">
-                <span>⏱️</span>
-                <p>Study Time Today</p>
-                <h2>
-                  {Math.floor(dashboardData.studyMinutes / 60)}h{" "}
-                  {dashboardData.studyMinutes % 60}m
-                </h2>
-              </div>
-
-              <div className="stat-card">
-                <span>🎯</span>
-                <p>Daily Study Goal</p>
-                <h2>{profile.studyGoal || "3 hours"}</h2>
-              </div>
-            </section>
-
-            {/* Study Planner */}
-            <section className="dashboard-section">
-              <div className="section-heading">
-                <div>
-                  <h2>Today's Study Planner</h2>
-                  <p>Manage your daily study tasks</p>
-                </div>
-
-                <span className="task-count">
-                  {completedTasks} of {dashboardData.tasks.length} completed
-                </span>
-              </div>
-
-              <form className="add-task-form" onSubmit={addTask}>
-                <input
-                  type="text"
-                  placeholder="Add a new study task..."
-                  value={newTask}
-                  onChange={(e) => setNewTask(e.target.value)}
-                />
-                <button type="submit">+ Add Task</button>
-              </form>
-
-              <div className="task-list">
-                {dashboardData.tasks.map((task) => (
-                  <label className="task-item" key={task.id}>
-                    <input
-                      type="checkbox"
-                      checked={task.done}
-                      onChange={() => toggleTask(task.id)}
-                    />
-                    <span className={task.done ? "task-done" : ""}>
-                      {task.title}
-                    </span>
-                  </label>
-                ))}
-              </div>
-            </section>
-          </>
+            <div className="stat-card">
+              <span>🎯</span>
+              <p>Daily Study Goal</p>
+              <h2>{profile.studyGoal || "3 hours"}</h2>
+            </div>
+          </section>
         )}
 
         {/* Subjects */}
@@ -511,8 +403,8 @@ function Dashboard() {
             <div className="tracker-card">
               <div>
                 <h3>
-                  {Math.floor(dashboardData.studyMinutes / 60)}h{" "}
-                  {dashboardData.studyMinutes % 60}m
+                  {Math.floor(studyMinutes / 60)}h{" "}
+                  {studyMinutes % 60}m
                 </h3>
                 <p>Study time completed</p>
               </div>
