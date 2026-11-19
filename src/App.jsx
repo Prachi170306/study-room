@@ -50,11 +50,8 @@ function App() {
         <Route path="/study-room/:roomId" element={<RoomPage />} />
 
         {/* Unknown routes */}
-        <Route
-          path="*"
-          element={<Navigate to="/login" replace />}
-        />
-      </Routes>
+        <Route path="*" element={<Navigate to="/login" replace />} />
+</Routes>
     </BrowserRouter>
   );
 }
