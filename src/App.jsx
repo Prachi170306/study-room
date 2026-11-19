@@ -7,11 +7,7 @@ import {
   Navigate,
 } from "react-router-dom";
 
-import {
-  onAuthStateChanged,
-  signOut,
-} from "firebase/auth";
-
+import { onAuthStateChanged, signOut } from "firebase/auth";
 import { auth } from "./firebase/config";
 
 // Authentication and profile pages
@@ -26,8 +22,10 @@ import { ChatPage } from "./features/chat";
 import { TasksPage } from "./features/tasks";
 import { NotificationsPage } from "./features/notifications";
 import { FocusRoom } from "./features/focus";
+import { ProgressRoom } from "./features/progress";
 import { RoomPage, StudyRoom } from "./features/studyroom";
 
+// Protected route with email verification
 function ProtectedRoute({ children }) {
   const [user, setUser] = useState(null);
   const [checking, setChecking] = useState(true);
@@ -94,11 +92,10 @@ function ProtectedRoute({ children }) {
   return children;
 }
 
-function App() {
+export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-
         {/* Default route */}
         <Route
           path="/"
@@ -175,6 +172,16 @@ function App() {
           }
         />
 
+        {/* Protected progress dashboard */}
+        <Route
+          path="/progress"
+          element={
+            <ProtectedRoute>
+              <ProgressRoom />
+            </ProtectedRoute>
+          }
+        />
+
         {/* Protected study rooms */}
         <Route
           path="/studyroom"
@@ -195,15 +202,11 @@ function App() {
         />
 
         {/* Unknown routes */}
-        {/* Unknown routes */}
         <Route
           path="*"
           element={<Navigate to="/login" replace />}
         />
-
       </Routes>
     </BrowserRouter>
   );
 }
-
-export default App;
