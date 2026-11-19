@@ -1,10 +1,14 @@
 
+import { useEffect, useState } from "react";
 import {
   BrowserRouter,
   Routes,
   Route,
   Navigate,
-} from 'react-router-dom';
+} from "react-router-dom";
+
+import { onAuthStateChanged, signOut } from "firebase/auth";
+import { auth } from "./firebase/config";
 
 // Authentication and profile pages
 import Login from "./pages/Login";
@@ -24,6 +28,73 @@ import { FocusRoom } from "./features/focus";
 import { ProgressRoom } from "./features/progress";
 import { RoomPage, StudyRoom } from "./features/studyroom";
 
+// Protected route with email verification
+function ProtectedRoute({ children }) {
+  const [user, setUser] = useState(null);
+  const [checking, setChecking] = useState(true);
+
+  useEffect(() => {
+    let active = true;
+
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      if (!currentUser) {
+        if (active) {
+          setUser(null);
+          setChecking(false);
+        }
+        return;
+      }
+
+      try {
+        await currentUser.reload();
+
+        if (!currentUser.emailVerified) {
+          await signOut(auth);
+
+          if (active) {
+            setUser(null);
+            setChecking(false);
+          }
+          return;
+        }
+
+        if (active) {
+          setUser(currentUser);
+          setChecking(false);
+        }
+      } catch (error) {
+        console.error("Authentication check failed:", error);
+
+        await signOut(auth);
+
+        if (active) {
+          setUser(null);
+          setChecking(false);
+        }
+      }
+    });
+
+    return () => {
+      active = false;
+      unsubscribe();
+    };
+  }, []);
+
+  if (checking) {
+    return (
+      <div className="min-h-screen bg-[#11111b] flex items-center justify-center text-white">
+        Checking authentication...
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return children;
+}
+
 export default function App() {
   return (
     <BrowserRouter>
@@ -34,10 +105,9 @@ export default function App() {
           element={<Navigate to="/login" replace />}
         />
 
-        {/* Authentication */}
+        {/* Public authentication routes */}
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
-        <Route path="/onboarding" element={<Onboarding />} />
 
         {/* Dashboard with shared layout */}
         <Route path="/dashboard" element={<Dashboard />}>
@@ -46,24 +116,109 @@ export default function App() {
         </Route>
 
         <Route path="/profile" element={<Profile />} />
+        {/* Protected onboarding */}
+        <Route
+          path="/onboarding"
+          element={
+            <ProtectedRoute>
+              <Onboarding />
+            </ProtectedRoute>
+          }
+        />
 
-        {/* Team features */}
-        <Route path="/chat" element={<ChatPage />} />
-        <Route path="/tasks" element={<TasksPage />} />
-        <Route path="/notifications" element={<NotificationsPage />} />
+        {/* Protected dashboard and profile */}
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        >
+          <Route path="resources" element={<ResourceLibrary />} />
+          <Route path="doubts" element={<DoubtCorner />} />
+        </Route>
 
-        {/* Focus Room */}
-        <Route path="/focus" element={<FocusRoom />} />
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <Profile />
+            </ProtectedRoute>
+          }
+        />
 
-        {/* Progress Dashboard */}
-        <Route path="/progress" element={<ProgressRoom />} />
+        {/* Protected team features */}
+        <Route
+          path="/chat"
+          element={
+            <ProtectedRoute>
+              <ChatPage />
+            </ProtectedRoute>
+          }
+        />
 
-        {/* Study Rooms */}
-        <Route path="/studyroom" element={<StudyRoom />} />
-        <Route path="/study-room/:roomId" element={<RoomPage />} />
+        <Route
+          path="/tasks"
+          element={
+            <ProtectedRoute>
+              <TasksPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/notifications"
+          element={
+            <ProtectedRoute>
+              <NotificationsPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/focus"
+          element={
+            <ProtectedRoute>
+              <FocusRoom />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Protected progress dashboard */}
+        <Route
+          path="/progress"
+          element={
+            <ProtectedRoute>
+              <ProgressRoom />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Protected study rooms */}
+        <Route
+          path="/studyroom"
+          element={
+            <ProtectedRoute>
+              <StudyRoom />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/study-room/:roomId"
+          element={
+            <ProtectedRoute>
+              <RoomPage />
+            </ProtectedRoute>
+          }
+        />
 
         {/* Unknown routes */}
-        <Route path="*" element={<Navigate to="/login" replace />} />
+        <Route
+          path="*"
+          element={<Navigate to="/login" replace />}
+        />
       </Routes>
     </BrowserRouter>
   );

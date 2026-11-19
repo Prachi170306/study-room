@@ -66,16 +66,15 @@ export default function TasksPage() {
       <section className="space-y-4">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-lg font-bold text-slate-800">
-              Your Workspace
-            </h2>
-
-            <p className="text-sm text-slate-500 mt-1">
-              Track and manage your study activities.
-            </p>
+            <h2 className="text-lg font-bold text-white">
+  Your Workspace
+</h2>
+<p className="text-sm text-slate-300 mt-1">
+  Track and manage your study activities.
+</p>
           </div>
 
-          <span className="text-sm text-slate-500">
+          <span className="text-sm text-slate-300">
             {filteredTasks.length} of {tasks.length} tasks
           </span>
         </div>

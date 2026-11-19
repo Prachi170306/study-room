@@ -1,3 +1,5 @@
+import { getResourceFile } from '../services/resourceService'
+
 export default function ResourceCard({
   resource,
   isBookmarked,
@@ -6,6 +8,33 @@ export default function ResourceCard({
   canDelete = false,
 }) {
   const isPDF = resource.fileType === 'application/pdf'
+
+  const handleDownload = async () => {
+    try {
+      const file = await getResourceFile(resource.fileId)
+
+      if (!file) {
+        alert(
+          'This file is stored in the uploader’s browser and is not available on this device.'
+        )
+        return
+      }
+
+      const url = URL.createObjectURL(file)
+      const link = document.createElement('a')
+
+      link.href = url
+      link.download = resource.fileName || 'resource'
+      document.body.appendChild(link)
+      link.click()
+      link.remove()
+
+      setTimeout(() => URL.revokeObjectURL(url), 1000)
+    } catch (error) {
+      console.error('Download failed:', error)
+      alert('Unable to download this resource.')
+    }
+  }
 
   return (
     <div className="rounded-2xl border border-[#39364f] bg-[#1c1c2b] p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-md">
@@ -35,7 +64,15 @@ export default function ResourceCard({
         {resource.fileName}
       </p>
 
-      {resource.fileUrl && (
+      {resource.fileId ? (
+        <button
+          type="button"
+          onClick={handleDownload}
+          className="mt-3 inline-block rounded-lg bg-indigo-50 px-4 py-2 text-sm font-semibold text-violet-400 hover:bg-indigo-100"
+        >
+          ↓ Download Resource
+        </button>
+      ) : resource.fileUrl ? (
         <a
           href={resource.fileUrl}
           target="_blank"
@@ -45,7 +82,7 @@ export default function ResourceCard({
         >
           ↓ Download Resource
         </a>
-      )}
+      ) : null}
 
       {canDelete && (
         <button

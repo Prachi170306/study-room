@@ -1,7 +1,10 @@
 
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import {
+  signInWithEmailAndPassword,
+  signOut,
+} from "firebase/auth";
 import { auth } from "../firebase/config";
 import "./Login.css";
 
@@ -13,6 +16,7 @@ function Login() {
   const [showPassword, setShowPassword] = useState(false);
 
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -20,10 +24,38 @@ function Login() {
     setLoading(true);
 
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      const result = await signInWithEmailAndPassword(
+        auth,
+        email.trim(),
+        password
+      );
+
+      await result.user.reload();
+
+      if (!result.user.emailVerified) {
+        await signOut(auth);
+        setError(
+          "Your email is not verified yet. Please check your inbox and click the verification link before logging in."
+        );
+        return;
+      }
+
       navigate("/dashboard");
+
     } catch (err) {
-      setError(err.message);
+      console.error("Login error:", err);
+
+      if (
+        err.code === "auth/invalid-credential" ||
+        err.code === "auth/user-not-found" ||
+        err.code === "auth/wrong-password"
+      ) {
+        setError("Incorrect email or password.");
+      } else if (err.code === "auth/invalid-email") {
+        setError("Please enter a valid email address.");
+      } else {
+        setError(err.message);
+      }
     } finally {
       setLoading(false);
     }
@@ -36,9 +68,16 @@ function Login() {
         <h1>Study<span>Room.</span></h1>
 
         <h2>Welcome Back!</h2>
+
         <p className="subtitle">
           Continue your learning journey with us.
         </p>
+
+        {location.state?.message && (
+          <p className="success-message">
+            {location.state.message}
+          </p>
+        )}
 
         <form onSubmit={handleSubmit}>
 
@@ -70,7 +109,11 @@ function Login() {
             </button>
           </div>
 
-          {error && <p style={{ color: "red" }}>{error}</p>}
+          {error && (
+            <p className="error-message">
+              {error}
+            </p>
+          )}
 
           <button
             type="submit"

@@ -129,10 +129,20 @@ service cloud.firestore {
                     && request.resource.data.title.size() > 0
                     && request.resource.data.title.size() <= 200
                     && request.resource.data.description is string
-                    && request.resource.data.filePath is string
-                    && request.resource.data.filePath.matches(
-                         'resources/' + request.auth.uid + '/.*'
-                       )
+                    && (
+                      (
+                        request.resource.data.fileStorage == 'indexeddb'
+                        && request.resource.data.fileId is string
+                        && request.resource.data.fileId.size() > 0
+                      )
+                      ||
+                      (
+                        request.resource.data.filePath is string
+                        && request.resource.data.filePath.matches(
+                          'resources/' + request.auth.uid + '/.*'
+                        )
+                      )
+                    )
                     && request.resource.data.fileType in [
                          'application/pdf',
                          'image/jpeg',
