@@ -1,0 +1,135 @@
+
+* {
+  box-sizing: border-box;
+}
+
+.login-container {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #11111b;
+  padding: 20px;
+  color: white;
+  font-family: Arial, sans-serif;
+}
+
+.login-box {
+  width: 100%;
+  max-width: 420px;
+  background: #1c1c2b;
+  padding: 40px;
+  border-radius: 16px;
+  border: 1px solid #353047;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+}
+
+.login-box h1 {
+  text-align: center;
+  font-size: 32px;
+  margin-bottom: 35px;
+}
+
+.login-box h1 span {
+  color: #a855f7;
+}
+
+.login-box h2 {
+  font-size: 26px;
+  margin-bottom: 8px;
+}
+
+.subtitle {
+  color: #aaa5bb;
+  margin-bottom: 30px;
+}
+
+.login-box form > label {
+  display: block;
+  margin: 18px 0 8px;
+  font-size: 14px;
+}
+
+.login-box input:not([type="checkbox"]) {
+  width: 100%;
+  padding: 13px;
+  border-radius: 8px;
+  border: 1px solid #403b50;
+  background: #292638;
+  color: white;
+  outline: none;
+}
+
+.login-box input:focus {
+  border-color: #a855f7;
+}
+
+.password-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.password-box input {
+  flex: 1;
+  min-width: 0;
+}
+
+.password-box button {
+  background: transparent;
+  border: none;
+  color: #c084fc;
+  cursor: pointer;
+}
+
+.login-options {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 20px 0;
+  font-size: 12px;
+  gap: 8px;
+}
+
+.remember {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: #c5c0d0;
+}
+
+.login-options a,
+.signup-text a {
+  color: #c084fc;
+  text-decoration: none;
+}
+
+.login-btn {
+  width: 100%;
+  padding: 14px;
+  background: #9333ea;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.login-btn:hover {
+  background: #7e22ce;
+}
+
+.signup-text {
+  text-align: center;
+  margin-top: 25px;
+  color: #aaa5bb;
+  font-size: 14px;
+}
+
+@media (max-width: 480px) {
+  .login-box {
+    padding: 25px;
+  }
+}
