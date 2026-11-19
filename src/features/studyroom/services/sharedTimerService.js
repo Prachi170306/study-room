@@ -113,8 +113,6 @@ export const listenToSharedTimer = (roomId, callback) => {
 
 
 // 5. COMPLETE TIMER AND RECORD FOCUS SESSION
-
-// 5. COMPLETE TIMER AND RECORD FOCUS SESSION
 export const completeSharedTimer = async (roomId, userId) => {
   const roomRef = getRoomRef(roomId);
 
