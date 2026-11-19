@@ -7,7 +7,7 @@ import {
   serverTimestamp
 } from "firebase/database";
 
-import { rtdb } from "../../../firebase/firebase";
+import { rtdb } from "../../../firebase";
 
 export const connectToRoomPresence = (roomId, userId, callback) => {
   const connectedRef = ref(rtdb, ".info/connected");

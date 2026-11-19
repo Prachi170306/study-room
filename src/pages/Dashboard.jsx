@@ -1,6 +1,6 @@
 
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation, Outlet, NavLink } from "react-router-dom";
 import { auth, db } from "../firebase/config";
 import { onAuthStateChanged } from "firebase/auth";
 import {
@@ -14,6 +14,7 @@ import useNotifications from "../features/notifications/hooks/useNotifications";
 
 function Dashboard() {
   const navigate = useNavigate();
+  const location = useLocation();
 
   const {
     notifications,
@@ -205,6 +206,16 @@ function Dashboard() {
             {sidebarOpen && ` ${item.name}`}
           </a>
         ))}
+
+        <NavLink to="/dashboard/resources" className={({ isActive }) => isActive ? "active" : ""}>
+          <span>📚</span>
+          {sidebarOpen && " Resource Library"}
+        </NavLink>
+
+        <NavLink to="/dashboard/doubts" className={({ isActive }) => isActive ? "active" : ""}>
+          <span>💬</span>
+          {sidebarOpen && " Doubt Corner"}
+        </NavLink>
       </aside>
 
       {/* Main Dashboard */}
@@ -338,6 +349,8 @@ function Dashboard() {
           </>
         )}
 
+        {location.pathname === "/dashboard" ? (
+          <>
         {/* Overview */}
         {activeSection === "overview" && (
           <section className="stats-grid">
@@ -414,6 +427,10 @@ function Dashboard() {
               </button>
             </div>
           </section>
+        )}
+          </>
+        ) : (
+          <Outlet />
         )}
       </main>
     </div>

@@ -17,6 +17,9 @@ import Onboarding from "./pages/Onboarding";
 import Dashboard from "./pages/Dashboard";
 import Profile from "./pages/Profile";
 
+import ResourceLibrary from "./features/resources/pages/ResourceLibrary";
+import DoubtCorner from "./features/doubts/pages/DoubtCorner";
+
 // Team features
 import { ChatPage } from "./features/chat";
 import { TasksPage } from "./features/tasks";
@@ -106,6 +109,13 @@ export default function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
 
+        {/* Dashboard with shared layout */}
+        <Route path="/dashboard" element={<Dashboard />}>
+          <Route path="resources" element={<ResourceLibrary />} />
+          <Route path="doubts" element={<DoubtCorner />} />
+        </Route>
+
+        <Route path="/profile" element={<Profile />} />
         {/* Protected onboarding */}
         <Route
           path="/onboarding"
@@ -124,7 +134,10 @@ export default function App() {
               <Dashboard />
             </ProtectedRoute>
           }
-        />
+        >
+          <Route path="resources" element={<ResourceLibrary />} />
+          <Route path="doubts" element={<DoubtCorner />} />
+        </Route>
 
         <Route
           path="/profile"

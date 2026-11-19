@@ -9,7 +9,7 @@ import {
   db,
   auth,
   loginAnonymously
-} from "../../../firebase/firebase";
+} from "../../../firebase";
 
 export const saveFocusSession = async (sessionData) => {
   try {
