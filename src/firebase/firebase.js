@@ -1,1 +1,1 @@
-export { auth, db, rtdb, loginAnonymously, default } from '../firebase'
+﻿export { auth, db, rtdb, loginAnonymously, default } from '../firebase'
