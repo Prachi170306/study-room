@@ -921,3 +921,68 @@
   background: #3b3b59;
   transform: translateY(-2px);
 }
+
+/* =================================
+   STUDYSPHERE SIDEBAR HEADER
+================================= */
+
+.sidebar-brand {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 28px;
+  min-width: 0;
+}
+
+.dashboard-sidebar .sidebar-brand h2 {
+  font-size: 21px;
+  font-weight: 700;
+  margin: 0;
+  white-space: nowrap;
+  flex: 1;
+}
+
+.dashboard-sidebar .sidebar-brand h2 span {
+  color: #a855f7;
+}
+
+/* Compact collapse button */
+
+.sidebar-toggle {
+  width: 36px !important;
+  min-width: 36px;
+  height: 36px;
+  margin: 0 !important;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: transparent;
+  color: #aaa5bb;
+  border: none;
+  border-radius: 8px;
+  font-size: 18px;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.sidebar-toggle:hover {
+  background: #302640;
+  color: #c084fc;
+}
+
+/* Collapsed sidebar header */
+
+.dashboard-sidebar.sidebar-closed .sidebar-brand {
+  justify-content: center;
+  margin-bottom: 28px;
+}
+
+.dashboard-sidebar.sidebar-closed .sidebar-toggle {
+  width: 42px !important;
+  min-width: 42px;
+  height: 42px;
+}

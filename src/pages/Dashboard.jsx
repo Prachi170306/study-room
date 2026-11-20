@@ -160,21 +160,23 @@ function Dashboard() {
           sidebarOpen ? "sidebar-open" : "sidebar-closed"
         }`}
       >
-        <button
-          type="button"
-          className="sidebar-toggle"
-          onClick={() => setSidebarOpen(!sidebarOpen)}
-          aria-label={sidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
-          title={sidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
-        >
-          {sidebarOpen ? "◀" : "☰"}
-        </button>
+        <div className="sidebar-brand">
+          {sidebarOpen && (
+            <h2>
+              Study<span>Sphere</span>
+            </h2>
+          )}
 
-        {sidebarOpen && (
-          <h2>
-            Study<span>Room.</span>
-          </h2>
-        )}
+          <button
+            type="button"
+            className="sidebar-toggle"
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+            aria-label={sidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
+            title={sidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
+          >
+            {sidebarOpen ? "◀" : "☰"}
+          </button>
+        </div>
 
         <p className="sidebar-label">{sidebarOpen ? "MENU" : ""}</p>
 

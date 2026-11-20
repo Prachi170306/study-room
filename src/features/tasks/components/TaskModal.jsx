@@ -49,7 +49,7 @@ export default function TaskModal({
     <div className="fixed inset-0 z-50 bg-slate-950/50 backdrop-blur-sm flex items-center justify-center p-4">
       <form
         onSubmit={handleSubmit}
-        className="bg-white rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-2xl"
+        className="bg-white rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-2xl text-black"
       >
         <div className="p-6 border-b border-slate-100 flex justify-between items-center">
           <div>
@@ -83,7 +83,7 @@ export default function TaskModal({
               onChange={handleChange}
               placeholder="e.g. Complete React assignment"
               required
-              className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-indigo-100 focus:border-indigo-400"
+              className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm text-black bg-white placeholder:text-slate-400 outline-none focus:ring-2 focus:ring-indigo-100 focus:border-indigo-400"
             />
           </div>
 
@@ -98,7 +98,7 @@ export default function TaskModal({
               onChange={handleChange}
               rows="3"
               placeholder="Add some details about this task..."
-              className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm outline-none resize-none focus:ring-2 focus:ring-indigo-100 focus:border-indigo-400"
+              className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm text-black bg-white placeholder:text-slate-400 outline-none resize-none focus:ring-2 focus:ring-indigo-100 focus:border-indigo-400"
             />
           </div>
 
@@ -112,7 +112,7 @@ export default function TaskModal({
               value={form.subject}
               onChange={handleChange}
               placeholder="e.g. Data Structures"
-              className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-indigo-100 focus:border-indigo-400"
+              className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm text-black bg-white placeholder:text-slate-400 outline-none focus:ring-2 focus:ring-indigo-100 focus:border-indigo-400"
             />
           </div>
 
@@ -126,7 +126,7 @@ export default function TaskModal({
                 name="priority"
                 value={form.priority}
                 onChange={handleChange}
-                className="w-full border border-slate-200 rounded-xl px-3 py-3 text-sm outline-none focus:border-indigo-400"
+                className="w-full border border-slate-200 rounded-xl px-3 py-3 text-sm text-black bg-white outline-none focus:border-indigo-400"
               >
                 <option value="high">High</option>
                 <option value="medium">Medium</option>
@@ -143,7 +143,7 @@ export default function TaskModal({
                 name="status"
                 value={form.status}
                 onChange={handleChange}
-                className="w-full border border-slate-200 rounded-xl px-3 py-3 text-sm outline-none focus:border-indigo-400"
+                className="w-full border border-slate-200 rounded-xl px-3 py-3 text-sm text-black bg-white outline-none focus:border-indigo-400"
               >
                 <option value="todo">To Do</option>
                 <option value="in-progress">In Progress</option>
@@ -162,7 +162,7 @@ export default function TaskModal({
               name="dueDate"
               value={form.dueDate}
               onChange={handleChange}
-              className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-indigo-400"
+              className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm text-black bg-white outline-none focus:border-indigo-400"
             />
           </div>
         </div>
