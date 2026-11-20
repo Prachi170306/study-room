@@ -902,3 +902,22 @@
     gap: 14px;
   }
 }
+.achievement-button {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  border: none;
+  background: #292940;
+  color: #facc15;
+  font-size: 22px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: 0.3s ease;
+}
+
+.achievement-button:hover {
+  background: #3b3b59;
+  transform: translateY(-2px);
+}

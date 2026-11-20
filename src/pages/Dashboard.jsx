@@ -1,14 +1,8 @@
-
 import { useEffect, useState } from "react";
 import { useNavigate, useLocation, Outlet, NavLink } from "react-router-dom";
 import { auth, db } from "../firebase/config";
 import { onAuthStateChanged } from "firebase/auth";
-import {
-  doc,
-  getDoc,
-  setDoc,
-  serverTimestamp,
-} from "firebase/firestore";
+import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
 import "./Dashboard.css";
 import useNotifications from "../features/notifications/hooks/useNotifications";
 
@@ -53,13 +47,7 @@ function Dashboard() {
       try {
         const profileRef = doc(db, "users", user.uid);
 
-        const dashboardRef = doc(
-          db,
-          "users",
-          user.uid,
-          "dashboard",
-          "data"
-        );
+        const dashboardRef = doc(db, "users", user.uid, "dashboard", "data");
 
         const [profileSnap, dashboardSnap] = await Promise.all([
           getDoc(profileRef),
@@ -94,13 +82,7 @@ function Dashboard() {
     if (!user) return;
 
     try {
-      const dashboardRef = doc(
-        db,
-        "users",
-        user.uid,
-        "dashboard",
-        "data"
-      );
+      const dashboardRef = doc(db, "users", user.uid, "dashboard", "data");
 
       await setDoc(
         dashboardRef,
@@ -108,7 +90,7 @@ function Dashboard() {
           studyMinutes: updatedMinutes,
           updatedAt: serverTimestamp(),
         },
-        { merge: true }
+        { merge: true },
       );
     } catch (error) {
       console.error("Error saving study time:", error);
@@ -159,8 +141,14 @@ function Dashboard() {
   const handleNavigation = (item, e) => {
     if (item.section) {
       e.preventDefault();
+
       setActiveSection(item.section);
-      window.history.replaceState(null, "", item.href);
+
+      if (location.pathname !== "/dashboard") {
+        navigate("/dashboard");
+      } else {
+        window.history.replaceState(null, "", item.href);
+      }
     }
   };
 
@@ -188,9 +176,7 @@ function Dashboard() {
           </h2>
         )}
 
-        <p className="sidebar-label">
-          {sidebarOpen ? "MENU" : ""}
-        </p>
+        <p className="sidebar-label">{sidebarOpen ? "MENU" : ""}</p>
 
         {sidebarLinks.map((item) => (
           <a
@@ -198,21 +184,25 @@ function Dashboard() {
             href={item.href}
             onClick={(e) => handleNavigation(item, e)}
             title={item.name}
-            className={
-              item.section === activeSection ? "active" : ""
-            }
+            className={item.section === activeSection ? "active" : ""}
           >
             <span>{item.icon}</span>
             {sidebarOpen && ` ${item.name}`}
           </a>
         ))}
 
-        <NavLink to="/dashboard/resources" className={({ isActive }) => isActive ? "active" : ""}>
+        <NavLink
+          to="/dashboard/resources"
+          className={({ isActive }) => (isActive ? "active" : "")}
+        >
           <span>📚</span>
           {sidebarOpen && " Resource Library"}
         </NavLink>
 
-        <NavLink to="/dashboard/doubts" className={({ isActive }) => isActive ? "active" : ""}>
+        <NavLink
+          to="/dashboard/doubts"
+          className={({ isActive }) => (isActive ? "active" : "")}
+        >
           <span>💬</span>
           {sidebarOpen && " Doubt Corner"}
         </NavLink>
@@ -224,9 +214,7 @@ function Dashboard() {
         <header className="dashboard-header">
           <div>
             <p className="dashboard-date">{today}</p>
-            <h1>
-              Welcome back, {profile.fullName || "Student"}!
-            </h1>
+            <h1>Welcome back, {profile.fullName || "Student"}!</h1>
             <p className="dashboard-subtitle">
               Ready to make today productive?
             </p>
@@ -241,10 +229,17 @@ function Dashboard() {
             >
               🔔
               {unreadCount > 0 && (
-                <span className="notification-badge">
-                  {unreadCount}
-                </span>
+                <span className="notification-badge">{unreadCount}</span>
               )}
+            </button>
+            <button
+              type="button"
+              className="achievement-button"
+              aria-label="Open achievements and progress"
+              title="My Progress"
+              onClick={() => navigate("/progress")}
+            >
+              🏆
             </button>
 
             <button
@@ -272,9 +267,7 @@ function Dashboard() {
               <div className="notification-drawer-header">
                 <div>
                   <h2>Notifications</h2>
-                  <p>
-                    You have {unreadCount} unread notifications
-                  </p>
+                  <p>You have {unreadCount} unread notifications</p>
 
                   {unreadCount > 0 && (
                     <button
@@ -312,9 +305,7 @@ function Dashboard() {
                       className={`notification-item ${
                         notification.read ? "read" : "unread"
                       }`}
-                      onClick={() =>
-                        toggleReadStatus(notification.id)
-                      }
+                      onClick={() => toggleReadStatus(notification.id)}
                     >
                       <span className="notification-icon">
                         {notification.type === "message"
@@ -331,16 +322,12 @@ function Dashboard() {
                         <p>{notification.message}</p>
                         <small>
                           {notification.createdAt?.toDate
-                            ? notification.createdAt
-                                .toDate()
-                                .toLocaleString()
+                            ? notification.createdAt.toDate().toLocaleString()
                             : "Recently"}
                         </small>
                       </div>
 
-                      {!notification.read && (
-                        <span className="unread-dot" />
-                      )}
+                      {!notification.read && <span className="unread-dot" />}
                     </button>
                   ))
                 )}
@@ -351,83 +338,81 @@ function Dashboard() {
 
         {location.pathname === "/dashboard" ? (
           <>
-        {/* Overview */}
-        {activeSection === "overview" && (
-          <section className="stats-grid">
-            <div className="stat-card">
-              <span>📚</span>
-              <p>Total Subjects</p>
-              <h2>{subjects.length}</h2>
-            </div>
+            {/* Overview */}
+            {activeSection === "overview" && (
+              <section className="stats-grid">
+                <div className="stat-card">
+                  <span>📚</span>
+                  <p>Total Subjects</p>
+                  <h2>{subjects.length}</h2>
+                </div>
 
-            <div className="stat-card">
-              <span>⏱️</span>
-              <p>Study Time Today</p>
-              <h2>
-                {Math.floor(studyMinutes / 60)}h{" "}
-                {studyMinutes % 60}m
-              </h2>
-            </div>
+                <div className="stat-card">
+                  <span>⏱️</span>
+                  <p>Study Time Today</p>
+                  <h2>
+                    {Math.floor(studyMinutes / 60)}h {studyMinutes % 60}m
+                  </h2>
+                </div>
 
-            <div className="stat-card">
-              <span>🎯</span>
-              <p>Daily Study Goal</p>
-              <h2>{profile.studyGoal || "3 hours"}</h2>
-            </div>
-          </section>
-        )}
+                <div className="stat-card">
+                  <span>🎯</span>
+                  <p>Daily Study Goal</p>
+                  <h2>{profile.studyGoal || "3 hours"}</h2>
+                </div>
+              </section>
+            )}
 
-        {/* Subjects */}
-        {activeSection === "subjects" && (
-          <section className="dashboard-section">
-            <div className="section-heading">
-              <div>
-                <h2>My Subjects</h2>
-                <p>Your current learning subjects</p>
-              </div>
-            </div>
-
-            <div className="subjects-grid">
-              {subjects.length > 0 ? (
-                subjects.map((subject, index) => (
-                  <div className="subject-card" key={index}>
-                    <div className="subject-icon">📖</div>
-                    <h3>{subject}</h3>
-                    <p>Keep learning and improving!</p>
+            {/* Subjects */}
+            {activeSection === "subjects" && (
+              <section className="dashboard-section">
+                <div className="section-heading">
+                  <div>
+                    <h2>My Subjects</h2>
+                    <p>Your current learning subjects</p>
                   </div>
-                ))
-              ) : (
-                <p>No subjects added yet.</p>
-              )}
-            </div>
-          </section>
-        )}
+                </div>
 
-        {/* Study Tracker */}
-        {activeSection === "tracker" && (
-          <section className="dashboard-section">
-            <div className="section-heading">
-              <div>
-                <h2>Study Tracker</h2>
-                <p>Track your study time today</p>
-              </div>
-            </div>
+                <div className="subjects-grid">
+                  {subjects.length > 0 ? (
+                    subjects.map((subject, index) => (
+                      <div className="subject-card" key={index}>
+                        <div className="subject-icon">📖</div>
+                        <h3>{subject}</h3>
+                        <p>Keep learning and improving!</p>
+                      </div>
+                    ))
+                  ) : (
+                    <p>No subjects added yet.</p>
+                  )}
+                </div>
+              </section>
+            )}
 
-            <div className="tracker-card">
-              <div>
-                <h3>
-                  {Math.floor(studyMinutes / 60)}h{" "}
-                  {studyMinutes % 60}m
-                </h3>
-                <p>Study time completed</p>
-              </div>
+            {/* Study Tracker */}
+            {activeSection === "tracker" && (
+              <section className="dashboard-section">
+                <div className="section-heading">
+                  <div>
+                    <h2>Study Tracker</h2>
+                    <p>Track your study time today</p>
+                  </div>
+                </div>
 
-              <button type="button" onClick={addStudyTime}>
-                + Add 30 Minutes
-              </button>
-            </div>
-          </section>
-        )}
+                <div className="tracker-card">
+                  <div>
+                    <h3>
+                      {Math.floor(studyMinutes / 60)}h {studyMinutes % 60}m
+                    </h3>
+                    <p>Study time completed</p>
+                  </div>
+
+                  <button type="button" onClick={addStudyTime}>
+                    + Add 30 Minutes
+                  </button>
+                </div>
+              </section>
+            )}
           </>
         ) : (
           <Outlet />
